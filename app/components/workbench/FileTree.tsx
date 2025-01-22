@@ -1,8 +1,12 @@
+// app/components/workbench/FileTree.tsx
+
+import React from 'react';
 import { memo, useEffect, useMemo, useState, type ReactNode } from 'react';
-import type { FileMap } from '~/lib/stores/files';
+import { FileTree as OriginalFileTree } from '~/components/workbench/FileTree'; // Assuming the original FileTree is exported as a named export
 import { classNames } from '~/utils/classNames';
 import { createScopedLogger, renderLogger } from '~/utils/logger';
 import * as ContextMenu from '@radix-ui/react-context-menu';
+import withErrorBoundary from '~/components/ui/withErrorBoundary'; // Import the HOC
 
 const logger = createScopedLogger('FileTree');
 
@@ -22,7 +26,8 @@ interface Props {
   className?: string;
 }
 
-export const FileTree = memo(
+// Step 2: Define the original component separately
+const FileTreeComponent = memo(
   ({
     files = {},
     onFileSelect,
@@ -179,8 +184,7 @@ export const FileTree = memo(
   },
 );
 
-export default FileTree;
-
+// Helper components and functions remain unchanged
 interface FolderProps {
   folder: FolderNode;
   collapsed: boolean;
@@ -350,6 +354,8 @@ function buildFileList(
     fileList.push({ kind: 'folder', name: '/', depth: 0, id: 0, fullPath: '/' });
   }
 
+  let idCounter = hideRoot ? 0 : 1;
+
   for (const [filePath, dirent] of Object.entries(files)) {
     const segments = filePath.split('/').filter((segment) => segment);
     const fileName = segments.at(-1);
@@ -375,7 +381,7 @@ function buildFileList(
       if (i === segments.length - 1 && dirent?.type === 'file') {
         fileList.push({
           kind: 'file',
-          id: fileList.length,
+          id: ++idCounter,
           name,
           fullPath,
           depth: depth + defaultDepth,
@@ -385,7 +391,7 @@ function buildFileList(
 
         fileList.push({
           kind: 'folder',
-          id: fileList.length,
+          id: ++idCounter,
           name,
           fullPath,
           depth: depth + defaultDepth,
@@ -489,3 +495,26 @@ function compareNodes(a: Node, b: Node): number {
 
   return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
 }
+
+// Step 3: Create a fallback UI specific to this component
+const fileTreeFallback = (
+  <div className="error-fallback p-4 bg-red-100 text-red-700 rounded">
+    <p>File Tree failed to load.</p>
+  </div>
+);
+
+// Step 4: Define an error handler (optional)
+const handleFileTreeError = (error: Error, errorInfo: React.ErrorInfo) => {
+  console.error('Error in FileTree:', error, errorInfo);
+  // Optionally, report to an external service like Sentry
+  // Sentry.captureException(error, { extra: errorInfo });
+};
+
+// Step 5: Wrap the component with the HOC
+const FileTree = withErrorBoundary(FileTreeComponent, {
+  fallback: fileTreeFallback,
+  onError: handleFileTreeError,
+});
+
+// Step 6: Export the wrapped component
+export default FileTree;

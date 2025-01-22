@@ -1,7 +1,10 @@
+// app/components/chat/Chat.client.tsx
+
 /*
  * @ts-nocheck
  * Preventing TS checks with files presented in the video for a better presentation.
  */
+import React from 'react';
 import { useStore } from '@nanostores/react';
 import type { Message } from 'ai';
 import { useChat } from 'ai/react';
@@ -15,7 +18,7 @@ import { workbenchStore } from '~/lib/stores/workbench';
 import { DEFAULT_MODEL, DEFAULT_PROVIDER, PROMPT_COOKIE_KEY, PROVIDER_LIST } from '~/utils/constants';
 import { cubicEasingFn } from '~/utils/easings';
 import { createScopedLogger, renderLogger } from '~/utils/logger';
-import { BaseChat } from './BaseChat';
+import { BaseChat } from './BaseChat/BaseChat';
 import Cookies from 'js-cookie';
 import { debounce } from '~/utils/debounce';
 import { useSettings } from '~/lib/hooks/useSettings';
@@ -23,6 +26,7 @@ import type { ProviderInfo } from '~/types/model';
 import { useSearchParams } from '@remix-run/react';
 import { createSampler } from '~/utils/sampler';
 import { getTemplates, selectStarterTemplate } from '~/utils/selectStarterTemplate';
+import withErrorBoundary from '~/components/ui/withErrorBoundary'; // Import the HOC
 
 const toastAnimation = cssTransition({
   enter: 'animated fadeInRight',
@@ -31,7 +35,8 @@ const toastAnimation = cssTransition({
 
 const logger = createScopedLogger('Chat');
 
-export function Chat() {
+// Step 2: Define the original Chat component separately
+function ChatComponent() {
   renderLogger.trace('Chat');
 
   const { ready, initialMessages, storeMessageHistory, importChat, exportChat } = useChatHistory();
@@ -81,6 +86,31 @@ export function Chat() {
     </>
   );
 }
+
+// Step 3: Create a fallback UI specific to the Chat component
+const chatFallback = (
+  <div className="error-fallback p-4 bg-red-100 text-red-700 rounded">
+    <p>Chat interface failed to load.</p>
+  </div>
+);
+
+// Step 4: Define an error handler (optional)
+const handleChatError = (error: Error, errorInfo: React.ErrorInfo) => {
+  console.error('Error in Chat:', error, errorInfo);
+  // Optionally, report to an external service like Sentry
+  // Sentry.captureException(error, { extra: errorInfo });
+};
+
+// Step 5: Wrap the Chat component with the HOC
+const Chat = withErrorBoundary(ChatComponent, {
+  fallback: chatFallback,
+  onError: handleChatError,
+});
+
+// Step 6: Export the wrapped Chat component
+export default Chat;
+
+// --- ChatImpl remains unchanged ---
 
 const processSampledMessages = createSampler(
   (options: {

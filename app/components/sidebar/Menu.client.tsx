@@ -1,18 +1,33 @@
+// app/components/sidebar/Menu.client.tsx
+
 import { motion, type Variants } from 'framer-motion';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
-import { Dialog, DialogButton, DialogDescription, DialogRoot, DialogTitle } from '~/components/ui/Dialog';
+import {
+  Dialog,
+  DialogButton,
+  DialogDescription,
+  DialogRoot,
+  DialogTitle,
+} from '~/components/ui/Dialog';
 import { ThemeSwitch } from '~/components/ui/ThemeSwitch';
 import { SettingsWindow } from '~/components/settings/SettingsWindow';
 import { SettingsButton } from '~/components/ui/SettingsButton';
-import { db, deleteById, getAll, chatId, type ChatHistoryItem, useChatHistory } from '~/lib/persistence';
+import {
+  db,
+  deleteById,
+  getAll,
+  chatId,
+  type ChatHistoryItem,
+  useChatHistory,
+} from '~/lib/persistence';
 import { cubicEasingFn } from '~/utils/easings';
 import { logger } from '~/utils/logger';
 import { HistoryItem } from './HistoryItem';
 import { binDates } from './date-binning';
 import { useSearchFilter } from '~/lib/hooks/useSearchFilter';
 
-const menuVariants = {
+const menuVariants: Variants = {
   closed: {
     opacity: 0,
     visibility: 'hidden',
@@ -31,7 +46,7 @@ const menuVariants = {
       ease: cubicEasingFn,
     },
   },
-} satisfies Variants;
+};
 
 type DialogContent = { type: 'delete'; item: ChatHistoryItem } | null;
 
@@ -49,11 +64,13 @@ function CurrentDateTime() {
   return (
     <div className="flex items-center gap-2 px-4 py-3 font-bold text-gray-700 dark:text-gray-300 border-b border-bolt-elements-borderColor">
       <div className="h-4 w-4 i-ph:clock-thin" />
-      {dateTime.toLocaleDateString()} {dateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+      {dateTime.toLocaleDateString()}{' '}
+      {dateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
     </div>
   );
 }
 
+// Named export: We'll import it with `import { Menu } from '~/components/sidebar/Menu.client'`
 export const Menu = () => {
   const { duplicateCurrentChat, exportChat } = useChatHistory();
   const menuRef = useRef<HTMLDivElement>(null);
@@ -70,31 +87,33 @@ export const Menu = () => {
   const loadEntries = useCallback(() => {
     if (db) {
       getAll(db)
-        .then((list) => list.filter((item) => item.urlId && item.description))
+        .then((allItems) => allItems.filter((item) => item.urlId && item.description))
         .then(setList)
         .catch((error) => toast.error(error.message));
     }
   }, []);
 
-  const deleteItem = useCallback((event: React.UIEvent, item: ChatHistoryItem) => {
-    event.preventDefault();
+  const deleteItem = useCallback(
+    (event: React.UIEvent, item: ChatHistoryItem) => {
+      event.preventDefault();
 
-    if (db) {
-      deleteById(db, item.id)
-        .then(() => {
-          loadEntries();
-
-          if (chatId.get() === item.id) {
-            // hard page navigation to clear the stores
-            window.location.pathname = '/';
-          }
-        })
-        .catch((error) => {
-          toast.error('Failed to delete conversation');
-          logger.error(error);
-        });
-    }
-  }, []);
+      if (db) {
+        deleteById(db, item.id)
+          .then(() => {
+            loadEntries();
+            if (chatId.get() === item.id) {
+              // Hard page navigation to clear the stores
+              window.location.pathname = '/';
+            }
+          })
+          .catch((error) => {
+            toast.error('Failed to delete conversation');
+            logger.error(error);
+          });
+      }
+    },
+    [loadEntries]
+  );
 
   const closeDialog = () => {
     setDialogContent(null);
@@ -104,7 +123,7 @@ export const Menu = () => {
     if (open) {
       loadEntries();
     }
-  }, [open]);
+  }, [open, loadEntries]);
 
   useEffect(() => {
     const enterThreshold = 40;
@@ -115,13 +134,15 @@ export const Menu = () => {
         setOpen(true);
       }
 
-      if (menuRef.current && event.clientX > menuRef.current.getBoundingClientRect().right + exitThreshold) {
+      if (
+        menuRef.current &&
+        event.clientX > menuRef.current.getBoundingClientRect().right + exitThreshold
+      ) {
         setOpen(false);
       }
     }
 
     window.addEventListener('mousemove', onMouseMove);
-
     return () => {
       window.removeEventListener('mousemove', onMouseMove);
     };
@@ -153,7 +174,8 @@ export const Menu = () => {
             href="/"
             className="flex gap-2 items-center bg-bolt-elements-sidebar-buttonBackgroundDefault text-bolt-elements-sidebar-buttonText hover:bg-bolt-elements-sidebar-buttonBackgroundHover rounded-md p-2 transition-theme mb-4"
           >
-            <span className="inline-block i-bolt:chat scale-110" />
+            {/* Removed i-bolt:chat; replace with an inline svg or a known icon class. Example: i-ph:chat */}
+            <span className="inline-block i-ph:chat scale-110" />
             Start new chat
           </a>
           <div className="relative w-full">
@@ -166,7 +188,9 @@ export const Menu = () => {
             />
           </div>
         </div>
-        <div className="text-bolt-elements-textPrimary font-medium pl-6 pr-5 my-2">Your Chats</div>
+        <div className="text-bolt-elements-textPrimary font-medium pl-6 pr-5 my-2">
+          Your Chats
+        </div>
         <div className="flex-1 overflow-auto pl-4 pr-5 pb-5">
           {filteredList.length === 0 && (
             <div className="pl-2 text-bolt-elements-textTertiary">

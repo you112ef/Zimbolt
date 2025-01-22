@@ -1,3 +1,6 @@
+// app/components/workbench/EditorPanel.tsx
+
+import React from 'react';
 import { useStore } from '@nanostores/react';
 import { memo, useMemo } from 'react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
@@ -11,15 +14,14 @@ import {
 } from '~/components/editor/codemirror/CodeMirrorEditor';
 import { PanelHeader } from '~/components/ui/PanelHeader';
 import { PanelHeaderButton } from '~/components/ui/PanelHeaderButton';
-import type { FileMap } from '~/lib/stores/files';
+import { FileBreadcrumb } from './FileBreadcrumb';
+import { FileTree } from './FileTree';
+import { TerminalTabs } from './terminal/TerminalTabs';
 import { themeStore } from '~/lib/stores/theme';
 import { WORK_DIR } from '~/utils/constants';
 import { renderLogger } from '~/utils/logger';
-import { isMobile } from '~/utils/mobile';
-import { FileBreadcrumb } from './FileBreadcrumb';
-import { FileTree } from './FileTree';
-import { DEFAULT_TERMINAL_SIZE, TerminalTabs } from './terminal/TerminalTabs';
-import { workbenchStore } from '~/lib/stores/workbench';
+import { classNames } from '~/utils/classNames';
+import withErrorBoundary from '~/components/ui/withErrorBoundary'; // Import the HOC
 
 interface EditorPanelProps {
   files?: FileMap;
@@ -38,7 +40,8 @@ const DEFAULT_EDITOR_SIZE = 100 - DEFAULT_TERMINAL_SIZE;
 
 const editorSettings: EditorSettings = { tabSize: 2 };
 
-export const EditorPanel = memo(
+// Step 2: Define the original component separately
+const EditorPanelComponent = memo(
   ({
     files,
     unsavedFiles,
@@ -131,3 +134,26 @@ export const EditorPanel = memo(
     );
   },
 );
+
+// Step 3: Create a fallback UI specific to this component
+const editorPanelFallback = (
+  <div className="error-fallback p-4 bg-red-100 text-red-700 rounded">
+    <p>Editor Panel failed to load.</p>
+  </div>
+);
+
+// Step 4: Define an error handler (optional)
+const handleEditorPanelError = (error: Error, errorInfo: React.ErrorInfo) => {
+  console.error('Error in EditorPanel:', error, errorInfo);
+  // Optionally, report to an external service like Sentry
+  // Sentry.captureException(error, { extra: errorInfo });
+};
+
+// Step 5: Wrap the component with the HOC
+const EditorPanel = withErrorBoundary(EditorPanelComponent, {
+  fallback: editorPanelFallback,
+  onError: handleEditorPanelError,
+});
+
+// Step 6: Export the wrapped component
+export default EditorPanel;

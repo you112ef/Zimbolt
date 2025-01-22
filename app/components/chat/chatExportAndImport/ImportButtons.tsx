@@ -1,8 +1,15 @@
+// app/components/chat/chatExportAndImport/ImportButtons.tsx
+
+import React from 'react';
 import type { Message } from 'ai';
 import { toast } from 'react-toastify';
 import { ImportFolderButton } from '~/components/chat/ImportFolderButton';
+import withErrorBoundary from '~/components/ui/withErrorBoundary'; // Import the HOC
 
-export function ImportButtons(importChat: ((description: string, messages: Message[]) => Promise<void>) | undefined) {
+// Step 2: Define the original component separately
+const ImportButtonsComponent = (
+  importChat: ((description: string, messages: Message[]) => Promise<void>) | undefined,
+) => {
   return (
     <div className="flex flex-col items-center justify-center w-auto">
       <input
@@ -67,4 +74,27 @@ export function ImportButtons(importChat: ((description: string, messages: Messa
       </div>
     </div>
   );
-}
+};
+
+// Step 3: Create a fallback UI specific to this component
+const importButtonsFallback = (
+  <div className="error-fallback p-4 bg-red-100 text-red-700 rounded">
+    <p>Import functionality is currently unavailable.</p>
+  </div>
+);
+
+// Step 4: Define an error handler (optional)
+const handleImportButtonsError = (error: Error, errorInfo: React.ErrorInfo) => {
+  console.error('Error in ImportButtons:', error, errorInfo);
+  // Optionally, report to an external service like Sentry
+  // Sentry.captureException(error, { extra: errorInfo });
+};
+
+// Step 5: Wrap the component with the HOC
+const ImportButtons = withErrorBoundary(ImportButtonsComponent, {
+  fallback: importButtonsFallback,
+  onError: handleImportButtonsError,
+});
+
+// Step 6: Export the wrapped component
+export default ImportButtons;

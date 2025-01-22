@@ -1,3 +1,6 @@
+// app/components/workbench/Workbench.client.tsx
+
+import React from 'react';
 import { useStore } from '@nanostores/react';
 import { motion, type HTMLMotionProps, type Variants } from 'framer-motion';
 import { computed } from 'nanostores';
@@ -18,6 +21,7 @@ import { EditorPanel } from './EditorPanel';
 import { Preview } from './Preview';
 import useViewport from '~/lib/hooks';
 import Cookies from 'js-cookie';
+import withErrorBoundary from '~/components/ui/withErrorBoundary'; // Import the HOC
 
 interface WorkspaceProps {
   chatStarted?: boolean;
@@ -54,7 +58,8 @@ const workbenchVariants = {
   },
 } satisfies Variants;
 
-export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => {
+// Step 2: Define the original component separately
+const WorkbenchComponent = memo(({ chatStarted, isStreaming }: WorkspaceProps) => {
   renderLogger.trace('Workbench');
 
   const [isSyncing, setIsSyncing] = useState(false);
@@ -245,6 +250,8 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
     )
   );
 });
+
+// A small helper component for the view transitions
 interface ViewProps extends HTMLMotionProps<'div'> {
   children: JSX.Element;
 }
@@ -256,3 +263,26 @@ const View = memo(({ children, ...props }: ViewProps) => {
     </motion.div>
   );
 });
+
+// Step 3: Create a fallback UI specific to this component
+const workbenchFallback = (
+  <div className="error-fallback p-4 bg-red-100 text-red-700 rounded">
+    <p>Workbench failed to load.</p>
+  </div>
+);
+
+// Step 4: Define an error handler (optional)
+const handleWorkbenchError = (error: Error, errorInfo: React.ErrorInfo) => {
+  console.error('Error in Workbench:', error, errorInfo);
+  // Optionally, report to an external service like Sentry
+  // Sentry.captureException(error, { extra: errorInfo });
+};
+
+// Step 5: Wrap the component with the HOC
+const Workbench = withErrorBoundary(WorkbenchComponent, {
+  fallback: workbenchFallback,
+  onError: handleWorkbenchError,
+});
+
+// Step 6: Export the wrapped component
+export default Workbench;

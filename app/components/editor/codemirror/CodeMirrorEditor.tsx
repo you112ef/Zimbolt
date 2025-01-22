@@ -1,3 +1,7 @@
+// app/components/editor/codemirror/CodeMirrorEditor.tsx
+
+import React from 'react';
+import { memo, useEffect, useRef, useState, type MutableRefObject } from 'react';
 import { acceptCompletion, autocompletion, closeBrackets } from '@codemirror/autocomplete';
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
 import { bracketMatching, foldGutter, indentOnInput, indentUnit } from '@codemirror/language';
@@ -16,7 +20,6 @@ import {
   tooltips,
   type Tooltip,
 } from '@codemirror/view';
-import { memo, useEffect, useRef, useState, type MutableRefObject } from 'react';
 import type { Theme } from '~/types/theme';
 import { classNames } from '~/utils/classNames';
 import { debounce } from '~/utils/debounce';
@@ -25,6 +28,7 @@ import { BinaryContent } from './BinaryContent';
 import { getTheme, reconfigureTheme } from './cm-theme';
 import { indentKeyBinding } from './indent';
 import { getLanguage } from './languages';
+import withErrorBoundary from '~/components/ui/withErrorBoundary'; // Import the HOC
 
 const logger = createScopedLogger('CodeMirrorEditor');
 
@@ -115,7 +119,8 @@ const editableStateField = StateField.define<boolean>({
   },
 });
 
-export const CodeMirrorEditor = memo(
+// Step 2: Define the original component separately
+const CodeMirrorEditorComponent = memo(
   ({
     id,
     doc,
@@ -262,9 +267,30 @@ export const CodeMirrorEditor = memo(
   },
 );
 
+// Step 3: Create a fallback UI specific to this component
+const codeMirrorEditorFallback = (
+  <div className="error-fallback p-4 bg-red-100 text-red-700 rounded">
+    <p>Code editor failed to load.</p>
+  </div>
+);
+
+// Step 4: Define an error handler (optional)
+const handleCodeMirrorEditorError = (error: Error, errorInfo: React.ErrorInfo) => {
+  console.error('Error in CodeMirrorEditor:', error, errorInfo);
+  // Optionally, report to an external service like Sentry
+  // Sentry.captureException(error, { extra: errorInfo });
+};
+
+// Step 5: Wrap the component with the HOC
+const CodeMirrorEditor = withErrorBoundary(CodeMirrorEditorComponent, {
+  fallback: codeMirrorEditorFallback,
+  onError: handleCodeMirrorEditorError,
+});
+
+// Step 6: Export the wrapped component
 export default CodeMirrorEditor;
 
-CodeMirrorEditor.displayName = 'CodeMirrorEditor';
+// --- Helper Functions remain unchanged ---
 
 function newEditorState(
   content: string,

@@ -1,3 +1,6 @@
+// app/components/workbench/terminal/Terminal.tsx
+
+import React from 'react';
 import { FitAddon } from '@xterm/addon-fit';
 import { WebLinksAddon } from '@xterm/addon-web-links';
 import { Terminal as XTerm } from '@xterm/xterm';
@@ -5,6 +8,7 @@ import { forwardRef, memo, useEffect, useImperativeHandle, useRef } from 'react'
 import type { Theme } from '~/lib/stores/theme';
 import { createScopedLogger } from '~/utils/logger';
 import { getTerminalTheme } from './theme';
+import withErrorBoundary from '~/components/ui/withErrorBoundary'; // Import the HOC
 
 const logger = createScopedLogger('Terminal');
 
@@ -21,7 +25,8 @@ export interface TerminalProps {
   onTerminalResize?: (cols: number, rows: number) => void;
 }
 
-export const Terminal = memo(
+// Step 2: Define the original component separately
+export const TerminalComponent = memo(
   forwardRef<TerminalRef, TerminalProps>(
     ({ className, theme, readonly, id, onTerminalReady, onTerminalResize }, ref) => {
       const terminalElementRef = useRef<HTMLDivElement>(null);
@@ -87,3 +92,26 @@ export const Terminal = memo(
     },
   ),
 );
+
+// Step 3: Create a fallback UI specific to this component
+const terminalFallback = (
+  <div className="error-fallback p-4 bg-red-100 text-red-700 rounded">
+    <p>Terminal failed to load.</p>
+  </div>
+);
+
+// Step 4: Define an error handler (optional)
+const handleTerminalError = (error: Error, errorInfo: React.ErrorInfo) => {
+  console.error('Error in Terminal:', error, errorInfo);
+  // Optionally, report to an external service like Sentry
+  // Sentry.captureException(error, { extra: errorInfo });
+};
+
+// Step 5: Wrap the component with the HOC
+export const Terminal = withErrorBoundary(TerminalComponent, {
+  fallback: terminalFallback,
+  onError: handleTerminalError,
+});
+
+// Step 6: Export the wrapped component
+export default Terminal;

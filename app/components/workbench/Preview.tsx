@@ -1,13 +1,17 @@
+// app/components/workbench/Preview.tsx
+
+import React from 'react';
 import { useStore } from '@nanostores/react';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { IconButton } from '~/components/ui/IconButton';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { PortDropdown } from './PortDropdown';
 import { ScreenshotSelector } from './ScreenshotSelector';
+import withErrorBoundary from '~/components/ui/withErrorBoundary'; // Import the HOC
 
 type ResizeSide = 'left' | 'right' | null;
 
-export const Preview = memo(() => {
+export const PreviewComponent = memo(() => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -74,7 +78,7 @@ export const Preview = memo(() => {
 
   const findMinPortIndex = useCallback(
     (minIndex: number, preview: { port: number }, index: number, array: { port: number }[]) => {
-      return preview.port < array[minIndex].port ? index : minIndex;
+      return preview.port < array[minPortIndex].port ? index : minPortIndex;
     },
     [],
   );
@@ -227,7 +231,7 @@ export const Preview = memo(() => {
         />
         <div
           className="flex items-center gap-1 flex-grow bg-bolt-elements-preview-addressBar-background border border-bolt-elements-borderColor text-bolt-elements-preview-addressBar-text rounded-full px-3 py-1 text-sm hover:bg-bolt-elements-preview-addressBar-backgroundHover hover:focus-within:bg-bolt-elements-preview-addressBar-backgroundActive focus-within:bg-bolt-elements-preview-addressBar-backgroundActive
-        focus-within-border-bolt-elements-borderColorActive focus-within:text-bolt-elements-preview-addressBar-textActive"
+      focus-within-border-bolt-elements-borderColorActive focus-within:text-bolt-elements-preview-addressBar-textActive"
         >
           <input
             title="URL"
@@ -364,3 +368,51 @@ export const Preview = memo(() => {
     </div>
   );
 });
+
+// A small helper component for the handle's "grip" icon
+const GripIcon = () => (
+  <div
+    style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100%',
+      pointerEvents: 'none',
+    }}
+  >
+    <div
+      style={{
+        color: 'rgba(0,0,0,0.5)',
+        fontSize: '10px',
+        lineHeight: '5px',
+        userSelect: 'none',
+        marginLeft: '1px',
+      }}
+    >
+      ••• •••
+    </div>
+  </div>
+);
+
+// Step 3: Create a fallback UI specific to this component
+const previewFallback = (
+  <div className="error-fallback p-4 bg-red-100 text-red-700 rounded">
+    <p>Preview failed to load.</p>
+  </div>
+);
+
+// Step 4: Define an error handler (optional)
+const handlePreviewError = (error: Error, errorInfo: React.ErrorInfo) => {
+  console.error('Error in Preview:', error, errorInfo);
+  // Optionally, report to an external service like Sentry
+  // Sentry.captureException(error, { extra: errorInfo });
+};
+
+// Step 5: Wrap the component with the HOC
+const Preview = withErrorBoundary(PreviewComponent, {
+  fallback: previewFallback,
+  onError: handlePreviewError,
+});
+
+// Step 6: Export the wrapped component
+export default Preview;

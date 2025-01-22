@@ -1,3 +1,6 @@
+// app/root.tsx
+
+import React, { useEffect } from 'react';
 import { useStore } from '@nanostores/react';
 import type { LinksFunction } from '@remix-run/cloudflare';
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react';
@@ -5,13 +8,15 @@ import tailwindReset from '@unocss/reset/tailwind-compat.css?url';
 import { themeStore } from './lib/stores/theme';
 import { stripIndents } from './utils/stripIndent';
 import { createHead } from 'remix-island';
-import { useEffect } from 'react';
 
 import reactToastifyStyles from 'react-toastify/dist/ReactToastify.css?url';
 import globalStyles from './styles/index.scss?url';
 import xtermStyles from '@xterm/xterm/css/xterm.css?url';
 
 import 'virtual:uno.css';
+
+// Import the ErrorBoundary component
+import ErrorBoundary from './components/ui/ErrorBoundary';
 
 export const links: LinksFunction = () => [
   {
@@ -80,7 +85,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 import { logStore } from './lib/stores/logs';
 
-export default function App() {
+const App: React.FC = () => {
   const theme = useStore(themeStore);
 
   useEffect(() => {
@@ -92,9 +97,26 @@ export default function App() {
     });
   }, []);
 
+  useEffect(() => {
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      console.error('Unhandled promise rejection:', event.reason);
+      // Optionally, you can update a global error state or trigger alerts here
+    };
+
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+
+    return () => {
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
+  }, []);
+
   return (
-    <Layout>
-      <Outlet />
-    </Layout>
+    <ErrorBoundary>
+      <Layout>
+        <Outlet />
+      </Layout>
+    </ErrorBoundary>
   );
-}
+};
+
+export default App;
