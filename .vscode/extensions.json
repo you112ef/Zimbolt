@@ -1,0 +1,11 @@
+{
+    "recommendations": [
+      "antfu.unocss",
+      "arcanis.vscode-zipfs",
+      "bradlc.vscode-tailwindcss",
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "pmneo.tsimporter",
+      "planbcoding.vscode-react-refactor"
+    ]
+  }

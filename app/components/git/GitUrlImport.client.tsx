@@ -1,3 +1,5 @@
+// app/components/git/GitUrlImport.client.tsx
+
 import { useSearchParams } from '@remix-run/react';
 import { generateId, type Message } from 'ai';
 import ignore from 'ignore';
@@ -10,6 +12,7 @@ import { useChatHistory } from '~/lib/persistence';
 import { createCommandsMessage, detectProjectCommands } from '~/utils/projectCommands';
 import { LoadingOverlay } from '~/components/ui/LoadingOverlay';
 import { toast } from 'react-toastify';
+import withErrorBoundary from '~/components/ui/withErrorBoundary'; // Import the HOC
 
 const IGNORE_PATTERNS = [
   'node_modules/**',
@@ -35,7 +38,10 @@ const IGNORE_PATTERNS = [
   '**/*lock.yaml',
 ];
 
-export function GitUrlImport() {
+/**
+ * Original GitUrlImport component renamed to GitUrlImportComponent
+ */
+function GitUrlImportComponent() {
   const [searchParams] = useSearchParams();
   const { ready: historyReady, importChat } = useChatHistory();
   const { ready: gitReady, gitClone } = useGit();
@@ -132,3 +138,40 @@ ${file.content}
     </ClientOnly>
   );
 }
+
+/**
+ * Fallback UI specific to GitUrlImport
+ */
+const gitUrlImportFallback = (
+  <div className="error-fallback p-4 bg-red-100 text-red-700 rounded flex flex-col items-center justify-center min-h-screen">
+    <h1 className="text-3xl font-bold text-red-600 mb-4">Something Went Wrong</h1>
+    <p className="text-lg text-red-500 mb-6">
+      We're sorry for the inconvenience. Please try refreshing the page.
+    </p>
+    <button
+      onClick={() => window.location.reload()}
+      className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+    >
+      Reload Page
+    </button>
+  </div>
+);
+
+/**
+ * Optional error handler for GitUrlImport
+ */
+const handleGitUrlImportError = (error: Error, errorInfo: React.ErrorInfo) => {
+  console.error('Error in GitUrlImport:', error, errorInfo);
+  // Optionally, send error details to a monitoring service like Sentry
+  // Sentry.captureException(error, { extra: errorInfo });
+};
+
+/**
+ * Wrapped GitUrlImport component with Error Boundary
+ */
+const GitUrlImport = withErrorBoundary(GitUrlImportComponent, {
+  fallback: gitUrlImportFallback,
+  onError: handleGitUrlImportError,
+});
+
+export default GitUrlImport;

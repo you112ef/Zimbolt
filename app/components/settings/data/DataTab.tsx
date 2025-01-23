@@ -1,3 +1,5 @@
+// app/components/settings/data/DataTab.tsx
+
 import React, { useState } from 'react';
 import { useNavigate } from '@remix-run/react';
 import Cookies from 'js-cookie';
@@ -5,6 +7,7 @@ import { toast } from 'react-toastify';
 import { db, deleteById, getAll } from '~/lib/persistence';
 import { logStore } from '~/lib/stores/logs';
 import { classNames } from '~/utils/classNames';
+import withErrorBoundary from '~/components/ui/withErrorBoundary'; // Import the HOC
 
 // List of supported providers that can have API keys
 const API_KEY_PROVIDERS = [
@@ -28,7 +31,11 @@ interface ApiKeys {
   [key: string]: string;
 }
 
-export default function DataTab() {
+interface DataTabProps {
+  // Define any additional props if necessary
+}
+
+const DataTabComponent: React.FC<DataTabProps> = () => {
   const navigate = useNavigate();
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -303,3 +310,35 @@ export default function DataTab() {
     </div>
   );
 }
+
+// Step 3: Create a fallback UI specific to this component
+const dataTabFallback = (
+  <div className="error-fallback p-4 bg-red-100 text-red-700 rounded flex flex-col items-center justify-center min-h-screen">
+    <h1 className="text-3xl font-bold text-red-600 mb-4">Something Went Wrong</h1>
+    <p className="text-lg text-red-500 mb-6">
+      We're sorry for the inconvenience. Please try refreshing the page.
+    </p>
+    <button
+      onClick={() => window.location.reload()}
+      className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+    >
+      Reload Page
+    </button>
+  </div>
+);
+
+// Step 4: Define an error handler (optional)
+const handleDataTabError = (error: Error, errorInfo: React.ErrorInfo) => {
+  console.error('Error in DataTab:', error, errorInfo);
+  // Optionally, send error details to a monitoring service like Sentry
+  // Sentry.captureException(error, { extra: errorInfo });
+};
+
+// Step 5: Wrap the component with the HOC
+const DataTab = withErrorBoundary(DataTabComponent, {
+  fallback: dataTabFallback,
+  onError: handleDataTabError,
+});
+
+// Step 6: Export the wrapped component
+export default DataTab;

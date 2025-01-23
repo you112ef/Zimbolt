@@ -1,9 +1,16 @@
+// app/components/settings/features/FeaturesTab.tsx
+
 import React from 'react';
 import { Switch } from '~/components/ui/Switch';
 import { PromptLibrary } from '~/lib/common/prompt-library';
 import { useSettings } from '~/lib/hooks/useSettings';
+import withErrorBoundary from '~/components/ui/withErrorBoundary'; // Import the HOC
 
-export default function FeaturesTab() {
+interface FeaturesTabProps {
+  // Define any additional props if necessary
+}
+
+const FeaturesTabComponent: React.FC<FeaturesTabProps> = () => {
   const {
     debug,
     enableDebugMode,
@@ -46,7 +53,7 @@ export default function FeaturesTab() {
           <div className="flex items-center justify-between">
             <div>
               <span className="text-bolt-elements-textPrimary">Auto Select Code Template</span>
-              <p className="text-xs text-bolt-elements-textTertiary">
+              <p className="text-xs text-bolt-elements-textTertiary mb-4">
                 Let Bolt select the best starter template for your project.
               </p>
             </div>
@@ -105,3 +112,35 @@ export default function FeaturesTab() {
     </div>
   );
 }
+
+// Step 3: Create a fallback UI specific to this component
+const featuresTabFallback = (
+  <div className="error-fallback p-4 bg-red-100 text-red-700 rounded flex flex-col items-center justify-center min-h-screen">
+    <h1 className="text-3xl font-bold text-red-600 mb-4">Something Went Wrong</h1>
+    <p className="text-lg text-red-500 mb-6">
+      We're sorry for the inconvenience. Please try refreshing the page.
+    </p>
+    <button
+      onClick={() => window.location.reload()}
+      className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+    >
+      Reload Page
+    </button>
+  </div>
+);
+
+// Step 4: Define an error handler (optional)
+const handleFeaturesTabError = (error: Error, errorInfo: React.ErrorInfo) => {
+  console.error('Error in FeaturesTab:', error, errorInfo);
+  // Optionally, send error details to a monitoring service like Sentry
+  // Sentry.captureException(error, { extra: errorInfo });
+};
+
+// Step 5: Wrap the component with the HOC
+const FeaturesTab = withErrorBoundary(FeaturesTabComponent, {
+  fallback: featuresTabFallback,
+  onError: handleFeaturesTabError,
+});
+
+// Step 6: Export the wrapped component
+export default FeaturesTab;

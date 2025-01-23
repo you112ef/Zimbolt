@@ -1,6 +1,8 @@
+// app/components/settings/SettingsWindow.tsx
+
+import React, { useState, type ReactElement } from 'react';
 import * as RadixDialog from '@radix-ui/react-dialog';
 import { motion } from 'framer-motion';
-import { useState, type ReactElement } from 'react';
 import { classNames } from '~/utils/classNames';
 import { DialogTitle, dialogVariants, dialogBackdropVariants } from '~/components/ui/Dialog';
 import { IconButton } from '~/components/ui/IconButton';
@@ -12,6 +14,7 @@ import DebugTab from './debug/DebugTab';
 import EventLogsTab from './event-logs/EventLogsTab';
 import ConnectionsTab from './connections/ConnectionsTab';
 import DataTab from './data/DataTab';
+import withErrorBoundary from '~/components/ui/withErrorBoundary'; // Import the HOC
 
 interface SettingsProps {
   open: boolean;
@@ -20,7 +23,8 @@ interface SettingsProps {
 
 type TabType = 'data' | 'providers' | 'features' | 'debug' | 'event-logs' | 'connection';
 
-export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
+// Step 2: Rename the original component
+const SettingsWindowComponent = ({ open, onClose }: SettingsProps) => {
   const { debug, eventLogs } = useSettings();
   const [activeTab, setActiveTab] = useState<TabType>('data');
 
@@ -126,3 +130,35 @@ export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
     </RadixDialog.Root>
   );
 };
+
+// Step 3: Create a fallback UI specific to this component
+const settingsWindowFallback = (
+  <div className="error-fallback p-4 bg-red-100 text-red-700 rounded flex flex-col items-center justify-center min-h-screen">
+    <h1 className="text-3xl font-bold text-red-600 mb-4">Something Went Wrong</h1>
+    <p className="text-lg text-red-500 mb-6">
+      We're sorry for the inconvenience. Please try refreshing the page.
+    </p>
+    <button
+      onClick={() => window.location.reload()}
+      className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+    >
+      Reload Page
+    </button>
+  </div>
+);
+
+// Step 4: Define an error handler (optional)
+const handleSettingsWindowError = (error: Error, errorInfo: React.ErrorInfo) => {
+  console.error('Error in SettingsWindow:', error, errorInfo);
+  // Optionally, send error details to a monitoring service like Sentry
+  // Sentry.captureException(error, { extra: errorInfo });
+};
+
+// Step 5: Wrap the component with the HOC
+const SettingsWindow = withErrorBoundary(SettingsWindowComponent, {
+  fallback: settingsWindowFallback,
+  onError: handleSettingsWindowError,
+});
+
+// Step 6: Export the wrapped component
+export default SettingsWindow;

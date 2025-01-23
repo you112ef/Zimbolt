@@ -1,5 +1,8 @@
+// app/components/workbench/ScreenshotSelector.tsx
+
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
+import withErrorBoundary from '~/components/ui/withErrorBoundary'; // Import the HOC
 
 interface ScreenshotSelectorProps {
   isSelectionMode: boolean;
@@ -7,7 +10,10 @@ interface ScreenshotSelectorProps {
   containerRef: React.RefObject<HTMLElement>;
 }
 
-export const ScreenshotSelector = memo(
+/**
+ * Original ScreenshotSelector component renamed to ScreenshotSelectorComponent
+ */
+const ScreenshotSelectorComponent = memo(
   ({ isSelectionMode, setIsSelectionMode, containerRef }: ScreenshotSelectorProps) => {
     const [isCapturing, setIsCapturing] = useState(false);
     const [selectionStart, setSelectionStart] = useState<{ x: number; y: number } | null>(null);
@@ -291,3 +297,40 @@ export const ScreenshotSelector = memo(
     );
   },
 );
+
+/**
+ * Fallback UI specific to ScreenshotSelector
+ */
+const screenshotSelectorFallback = (
+  <div className="error-fallback p-4 bg-red-100 text-red-700 rounded flex flex-col items-center justify-center min-h-screen">
+    <h1 className="text-3xl font-bold text-red-600 mb-4">Something Went Wrong</h1>
+    <p className="text-lg text-red-500 mb-6">
+      We're sorry for the inconvenience. Please try refreshing the page.
+    </p>
+    <button
+      onClick={() => window.location.reload()}
+      className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+    >
+      Reload Page
+    </button>
+  </div>
+);
+
+/**
+ * Optional error handler for ScreenshotSelector
+ */
+const handleScreenshotSelectorError = (error: Error, errorInfo: React.ErrorInfo) => {
+  console.error('Error in ScreenshotSelector:', error, errorInfo);
+  // Optionally, send error details to a monitoring service like Sentry
+  // Sentry.captureException(error, { extra: errorInfo });
+};
+
+/**
+ * Wrapped ScreenshotSelector component with Error Boundary
+ */
+const ScreenshotSelector = withErrorBoundary(ScreenshotSelectorComponent, {
+  fallback: screenshotSelectorFallback,
+  onError: handleScreenshotSelectorError,
+});
+
+export { ScreenshotSelector };

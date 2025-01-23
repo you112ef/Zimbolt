@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "lib": ["DOM", "DOM.Iterable", "ESNext", "ESNext.AsyncIterable"],
     "isolatedModules": true,
     "esModuleInterop": true,
     "jsx": "react-jsx",
     "jsxImportSource": "react",
     "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "moduleResolution": "node",
     "resolveJsonModule": true,
     "target": "ESNext",
     "strict": true,
@@ -26,16 +26,15 @@
       "~/*": ["./app/*"]
     },
     "noEmit": true,
-    "typeRoots": ["./node_modules/@types", "./app/types"]
+    "typeRoots": ["./node_modules/@types", "./app/types"],
+    "types": ["node", "react", "react-dom"]
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    "**/.server/**/*.ts",
-    "**/.server/**/*.tsx",
-    "**/.client/**/*.ts",
-    "**/.client/**/*.tsx",
+    "app/**/*.ts",
+    "app/**/*.tsx",
     "app/types/**/*.d.ts"
   ],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist", "**/*.js"]
 }

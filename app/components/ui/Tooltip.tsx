@@ -1,5 +1,8 @@
+// app/components/ui/Tooltip.tsx
+
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { forwardRef, type ForwardedRef, type ReactElement } from 'react';
+import withErrorBoundary from '~/components/ui/withErrorBoundary'; // Import the HOC
 
 interface TooltipProps {
   tooltip: React.ReactNode;
@@ -13,7 +16,10 @@ interface TooltipProps {
   delay?: number;
 }
 
-const WithTooltip = forwardRef(
+/**
+ * Original WithTooltip component renamed to WithTooltipComponent
+ */
+const WithTooltipComponent = forwardRef(
   (
     {
       tooltip,
@@ -75,5 +81,40 @@ const WithTooltip = forwardRef(
     );
   },
 );
+
+/**
+ * Fallback UI specific to Tooltip
+ */
+const tooltipFallback = (
+  <div className="error-fallback p-4 bg-red-100 text-red-700 rounded flex flex-col items-center justify-center min-h-screen">
+    <h1 className="text-3xl font-bold text-red-600 mb-4">Something Went Wrong</h1>
+    <p className="text-lg text-red-500 mb-6">
+      We're sorry for the inconvenience. Please try refreshing the page.
+    </p>
+    <button
+      onClick={() => window.location.reload()}
+      className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+    >
+      Reload Page
+    </button>
+  </div>
+);
+
+/**
+ * Optional error handler for Tooltip
+ */
+const handleTooltipError = (error: Error, errorInfo: React.ErrorInfo) => {
+  console.error('Error in Tooltip:', error, errorInfo);
+  // Optionally, send error details to a monitoring service like Sentry
+  // Sentry.captureException(error, { extra: errorInfo });
+};
+
+/**
+ * Wrapped WithTooltip component with Error Boundary
+ */
+const WithTooltip = withErrorBoundary(WithTooltipComponent, {
+  fallback: tooltipFallback,
+  onError: handleTooltipError,
+});
 
 export default WithTooltip;

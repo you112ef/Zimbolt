@@ -1,7 +1,10 @@
+// app/components/settings/connections/ConnectionsTab.tsx
+
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import Cookies from 'js-cookie';
 import { logStore } from '~/lib/stores/logs';
+import withErrorBoundary from '~/components/ui/withErrorBoundary'; // Import the HOC
 
 interface GitHubUserResponse {
   login: string;
@@ -9,7 +12,11 @@ interface GitHubUserResponse {
   [key: string]: any; // for other properties we don't explicitly need
 }
 
-export default function ConnectionsTab() {
+interface ConnectionsTabProps {
+  // Define any additional props if necessary
+}
+
+const ConnectionsTabComponent: React.FC<ConnectionsTabProps> = () => {
   const [githubUsername, setGithubUsername] = useState(Cookies.get('githubUsername') || '');
   const [githubToken, setGithubToken] = useState(Cookies.get('githubToken') || '');
   const [isConnected, setIsConnected] = useState(false);
@@ -20,6 +27,7 @@ export default function ConnectionsTab() {
     if (githubUsername && githubToken) {
       verifyGitHubCredentials();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const verifyGitHubCredentials = async () => {
@@ -149,3 +157,35 @@ export default function ConnectionsTab() {
     </div>
   );
 }
+
+// Step 3: Create a fallback UI specific to this component
+const connectionsTabFallback = (
+  <div className="error-fallback p-4 bg-red-100 text-red-700 rounded flex flex-col items-center justify-center min-h-screen">
+    <h1 className="text-3xl font-bold text-red-600 mb-4">Something Went Wrong</h1>
+    <p className="text-lg text-red-500 mb-6">
+      We're sorry for the inconvenience. Please try refreshing the page.
+    </p>
+    <button
+      onClick={() => window.location.reload()}
+      className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+    >
+      Reload Page
+    </button>
+  </div>
+);
+
+// Step 4: Define an error handler (optional)
+const handleConnectionsTabError = (error: Error, errorInfo: React.ErrorInfo) => {
+  console.error('Error in ConnectionsTab:', error, errorInfo);
+  // Optionally, send error details to a monitoring service like Sentry
+  // Sentry.captureException(error, { extra: errorInfo });
+};
+
+// Step 5: Wrap the component with the HOC
+const ConnectionsTab = withErrorBoundary(ConnectionsTabComponent, {
+  fallback: connectionsTabFallback,
+  onError: handleConnectionsTabError,
+});
+
+// Step 6: Export the wrapped component
+export default ConnectionsTab;

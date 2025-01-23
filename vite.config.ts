@@ -1,14 +1,21 @@
-import { cloudflareDevProxyVitePlugin as remixCloudflareDevProxy, vitePlugin as remixVitePlugin } from '@remix-run/dev';
+// vite.config.ts
+
+import {
+  cloudflareDevProxyVitePlugin as remixCloudflareDevProxy,
+  vitePlugin as remixVitePlugin,
+} from '@remix-run/dev';
 import UnoCSS from 'unocss/vite';
-import { defineConfig, type ViteDevServer } from 'vite';
+import { defineConfig, type PluginOption, type UserConfig, type ConfigEnv } from 'vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { optimizeCssModules } from 'vite-plugin-optimize-css-modules';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
-import { execSync } from 'child_process';
+import { execSync } from 'node:child_process';
+import type { ViteDevServer } from 'vite';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 
 // Get git hash with fallback
-const getGitHash = () => {
+const getGitHash = (): string => {
   try {
     return execSync('git rev-parse --short HEAD').toString().trim();
   } catch {
@@ -16,8 +23,7 @@ const getGitHash = () => {
   }
 };
 
-
-export default defineConfig((config) => {
+export default defineConfig((config: ConfigEnv): UserConfig => {
   return {
     define: {
       __COMMIT_HASH: JSON.stringify(getGitHash()),
@@ -36,15 +42,21 @@ export default defineConfig((config) => {
           v3_fetcherPersist: true,
           v3_relativeSplatPath: true,
           v3_throwAbortReason: true,
-          v3_lazyRouteDiscovery: true
+          v3_lazyRouteDiscovery: true,
         },
       }),
       UnoCSS(),
       tsconfigPaths(),
       chrome129IssuePlugin(),
       config.mode === 'production' && optimizeCssModules({ apply: 'build' }),
+    ].filter(Boolean) as PluginOption[],
+    envPrefix: [
+      'VITE_',
+      'OPENAI_LIKE_API_BASE_URL',
+      'OLLAMA_API_BASE_URL',
+      'LMSTUDIO_API_BASE_URL',
+      'TOGETHER_API_BASE_URL',
     ],
-    envPrefix: ["VITE_","OPENAI_LIKE_API_BASE_URL", "OLLAMA_API_BASE_URL", "LMSTUDIO_API_BASE_URL","TOGETHER_API_BASE_URL"],
     css: {
       preprocessorOptions: {
         scss: {
@@ -55,28 +67,28 @@ export default defineConfig((config) => {
   };
 });
 
-function chrome129IssuePlugin() {
+function chrome129IssuePlugin(): PluginOption {
   return {
     name: 'chrome129IssuePlugin',
     configureServer(server: ViteDevServer) {
-      server.middlewares.use((req, res, next) => {
-        const raw = req.headers['user-agent']?.match(/Chrom(e|ium)\/([0-9]+)\./);
+      server.middlewares.use(
+        (req: IncomingMessage, res: ServerResponse, next: () => void) => {
+          const raw = req.headers['user-agent']?.toString().match(/Chrom(e|ium)\/([0-9]+)\./);
 
-        if (raw) {
-          const version = parseInt(raw[2], 10);
+          if (raw) {
+            const version = parseInt(raw[2], 10);
 
-          if (version === 129) {
-            res.setHeader('content-type', 'text/html');
-            res.end(
-              '<body><h1>Please use Chrome Canary for testing.</h1><p>Chrome 129 has an issue with JavaScript modules & Vite local development, see <a href="https://github.com/stackblitz/bolt.new/issues/86#issuecomment-2395519258">for more information.</a></p><p><b>Note:</b> This only impacts <u>local development</u>. `pnpm run build` and `pnpm run start` will work fine in this browser.</p></body>',
-            );
-
-            return;
+            if (version === 129) {
+              res.setHeader('content-type', 'text/html');
+              res.end(
+                '<body><h1>Please use Chrome Canary for testing.</h1><p>Chrome 129 has an issue with JavaScript modules & Vite local development, see <a href="https://github.com/stackblitz/bolt.new/issues/86#issuecomment-2395519258">for more information.</a></p><p><b>Note:</b> This only impacts <u>local development</u>. `pnpm run build` and `pnpm run start` will work fine in this browser.</p></body>',
+              );
+              return;
+            }
           }
-        }
-
-        next();
-      });
+          next();
+        },
+      );
     },
   };
 }

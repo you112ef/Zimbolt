@@ -26,6 +26,7 @@ import { logger } from '~/utils/logger';
 import { HistoryItem } from './HistoryItem';
 import { binDates } from './date-binning';
 import { useSearchFilter } from '~/lib/hooks/useSearchFilter';
+import withErrorBoundary from '~/components/ui/withErrorBoundary'; // Import the HOC
 
 const menuVariants: Variants = {
   closed: {
@@ -50,28 +51,10 @@ const menuVariants: Variants = {
 
 type DialogContent = { type: 'delete'; item: ChatHistoryItem } | null;
 
-function CurrentDateTime() {
-  const [dateTime, setDateTime] = useState(new Date());
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setDateTime(new Date());
-    }, 60000); // Update every minute
-
-    return () => clearInterval(timer);
-  }, []);
-
-  return (
-    <div className="flex items-center gap-2 px-4 py-3 font-bold text-gray-700 dark:text-gray-300 border-b border-bolt-elements-borderColor">
-      <div className="h-4 w-4 i-ph:clock-thin" />
-      {dateTime.toLocaleDateString()}{' '}
-      {dateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-    </div>
-  );
-}
-
-// Named export: We'll import it with `import { Menu } from '~/components/sidebar/Menu.client'`
-export const Menu = () => {
+/**
+ * Original Menu component renamed to MenuComponent
+ */
+function MenuComponent() {
   const { duplicateCurrentChat, exportChat } = useChatHistory();
   const menuRef = useRef<HTMLDivElement>(null);
   const [list, setList] = useState<ChatHistoryItem[]>([]);
@@ -253,4 +236,64 @@ export const Menu = () => {
       <SettingsWindow open={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </motion.div>
   );
+}
+
+/**
+ * CurrentDateTime component for displaying current date and time
+ */
+function CurrentDateTime() {
+  const [dateTime, setDateTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setDateTime(new Date());
+    }, 60000); // Update every minute
+
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="flex items-center gap-2 px-4 py-3 font-bold text-gray-700 dark:text-gray-300 border-b border-bolt-elements-borderColor">
+      <div className="h-4 w-4 i-ph:clock-thin" />
+      {dateTime.toLocaleDateString()}{' '}
+      {dateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+    </div>
+  );
+}
+
+/**
+ * Fallback UI specific to Menu
+ */
+const menuFallback = (
+  <div className="error-fallback p-4 bg-red-100 text-red-700 rounded flex flex-col items-center justify-center min-h-screen">
+    <h1 className="text-3xl font-bold text-red-600 mb-4">Something Went Wrong</h1>
+    <p className="text-lg text-red-500 mb-6">
+      We're sorry for the inconvenience. Please try refreshing the page.
+    </p>
+    <button
+      onClick={() => window.location.reload()}
+      className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+    >
+      Reload Page
+    </button>
+  </div>
+);
+
+/**
+ * Optional error handler for Menu
+ */
+const handleMenuError = (error: Error, errorInfo: React.ErrorInfo) => {
+  console.error('Error in Menu:', error, errorInfo);
+  // Optionally, send error details to a monitoring service like Sentry
+  // Sentry.captureException(error, { extra: errorInfo });
 };
+
+/**
+ * Wrapped Menu component with Error Boundary
+ */
+const Menu = withErrorBoundary(MenuComponent, {
+  fallback: menuFallback,
+  onError: handleMenuError,
+});
+
+export default Menu;
