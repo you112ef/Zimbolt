@@ -92,7 +92,7 @@ export function useGit() {
 
       return { workdir: webcontainer.workdir, data };
     },
-    [webcontainer],
+    [webcontainer]
   );
 
   return { ready, gitClone };
@@ -100,7 +100,7 @@ export function useGit() {
 
 const getFs = (
   webcontainer: WebContainer,
-  record: MutableRefObject<Record<string, { data: any; encoding?: string }>>,
+  record: MutableRefObject<Record<string, { data: any; encoding?: string }>>
 ) => ({
   promises: {
     readFile: async (path: string, options: any) => {

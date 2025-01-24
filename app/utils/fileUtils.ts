@@ -65,7 +65,7 @@ const readPackageJson = async (files: File[]): Promise<{ scripts?: Record<string
 };
 
 export const detectProjectType = async (
-  files: File[],
+  files: File[]
 ): Promise<{ type: string; setupCommand: string; followupMessage: string }> => {
   const hasFile = (name: string) => files.some((f) => f.webkitRelativePath.endsWith(name));
 

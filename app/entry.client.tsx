@@ -25,8 +25,11 @@ const hydrationFallback = (
 // Optional: Define an error handler for hydration errors
 const handleHydrationError = (error: Error, errorInfo: React.ErrorInfo) => {
   console.error('Hydration error:', error, errorInfo);
-  // Optionally, send error details to a monitoring service like Sentry
-  // Sentry.captureException(error, { extra: errorInfo });
+
+  /*
+   * Optionally, send error details to a monitoring service like Sentry
+   * Sentry.captureException(error, { extra: errorInfo });
+   */
 };
 
 // Wrap the RemixBrowser with the Error Boundary HOC

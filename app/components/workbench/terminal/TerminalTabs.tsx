@@ -102,7 +102,7 @@ export const TerminalTabs = memo(() => {
                             isActive,
                           'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:bg-bolt-elements-terminals-buttonBackground':
                             !isActive,
-                        },
+                        }
                       )}
                       onClick={() => setActiveTerminal(index)}
                     >
@@ -119,7 +119,7 @@ export const TerminalTabs = memo(() => {
                             'bg-bolt-elements-terminals-buttonBackground text-bolt-elements-textPrimary': isActive,
                             'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:bg-bolt-elements-terminals-buttonBackground':
                               !isActive,
-                          },
+                          }
                         )}
                         onClick={() => setActiveTerminal(index)}
                       >

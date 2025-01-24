@@ -10,7 +10,8 @@ import type { Message } from 'ai';
 import { useChat } from 'ai/react';
 import { useAnimate } from 'framer-motion';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { cssTransition, toast, ToastContainer } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
+import { cssTransition } from 'react-toastify';
 import { useMessageParser, usePromptEnhancer, useShortcuts, useSnapScroll } from '~/lib/hooks';
 import { description, useChatHistory } from '~/lib/persistence';
 import { chatStore } from '~/lib/stores/chat';
@@ -18,7 +19,7 @@ import { workbenchStore } from '~/lib/stores/workbench';
 import { DEFAULT_MODEL, DEFAULT_PROVIDER, PROMPT_COOKIE_KEY, PROVIDER_LIST } from '~/utils/constants';
 import { cubicEasingFn } from '~/utils/easings';
 import { createScopedLogger, renderLogger } from '~/utils/logger';
-import { BaseChat } from './BaseChat/BaseChat';
+import BaseChat from './BaseChat/BaseChat';
 import Cookies from 'js-cookie';
 import { debounce } from '~/utils/debounce';
 import { useSettings } from '~/lib/hooks/useSettings';
@@ -50,7 +51,7 @@ function ChatComponent() {
       {ready && (
         <ChatImpl
           description={title}
-          initialMessages={initialMessages}
+          initialMessages={initialMessages.filter((msg): msg is Message & { role: NonNullable<Message['role']> } => msg.role !== undefined)}
           exportChat={exportChat}
           storeMessageHistory={storeMessageHistory}
           importChat={importChat}
@@ -97,8 +98,11 @@ const chatFallback = (
 // Step 4: Define an error handler (optional)
 const handleChatError = (error: Error, errorInfo: React.ErrorInfo) => {
   console.error('Error in Chat:', error, errorInfo);
-  // Optionally, report to an external service like Sentry
-  // Sentry.captureException(error, { extra: errorInfo });
+
+  /*
+   * Optionally, report to an external service like Sentry
+   * Sentry.captureException(error, { extra: errorInfo });
+   */
 };
 
 // Step 5: Wrap the Chat component with the HOC
@@ -127,7 +131,7 @@ const processSampledMessages = createSampler(
       storeMessageHistory(messages).catch((error) => toast.error(error.message));
     }
   },
-  50,
+  50
 );
 
 interface ChatProps {
@@ -179,7 +183,7 @@ export const ChatImpl = memo(
       onError: (error) => {
         logger.error('Request failed\n\n', error);
         toast.error(
-          'There was an error processing your request: ' + (error.message ? error.message : 'No details were returned'),
+          'There was an error processing your request: ' + (error.message ? error.message : 'No details were returned')
         );
       },
       onFinish: (message, response) => {
@@ -475,7 +479,7 @@ export const ChatImpl = memo(
         const trimmedValue = event.target.value.trim();
         Cookies.set(PROMPT_COOKIE_KEY, trimmedValue, { expires: 30 });
       }, 1000),
-      [],
+      []
     );
 
     const [messageRef, scrollRef] = useSnapScroll();
@@ -543,7 +547,7 @@ export const ChatImpl = memo(
             },
             model,
             provider,
-            apiKeys,
+            apiKeys
           );
         }}
         uploadedFiles={uploadedFiles}
@@ -554,5 +558,5 @@ export const ChatImpl = memo(
         clearAlert={() => workbenchStore.clearAlert()}
       />
     );
-  },
+  }
 );

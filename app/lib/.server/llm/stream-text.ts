@@ -204,7 +204,7 @@ export async function streamText(props: {
     if (!modelDetails) {
       // Fallback to first model
       logger.warn(
-        `MODEL [${currentModel}] not found in provider [${provider.name}]. Falling back to first model. ${modelsList[0].name}`,
+        `MODEL [${currentModel}] not found in provider [${provider.name}]. Falling back to first model. ${modelsList[0].name}`
       );
       modelDetails = modelsList[0];
     }

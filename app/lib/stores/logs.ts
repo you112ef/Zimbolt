@@ -51,7 +51,7 @@ class LogStore {
 
     if (currentLogs.length > MAX_LOGS) {
       const sortedLogs = currentLogs.sort(
-        ([, a], [, b]) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+        ([, a], [, b]) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
       );
       const newLogs = Object.fromEntries(sortedLogs.slice(0, MAX_LOGS));
       this._logs.set(newLogs);
@@ -62,7 +62,7 @@ class LogStore {
     message: string,
     level: LogEntry['level'] = 'info',
     category: LogEntry['category'] = 'system',
-    details?: Record<string, any>,
+    details?: Record<string, any>
   ) {
     const id = this._generateId();
     const entry: LogEntry = {
@@ -128,7 +128,7 @@ class LogStore {
 
   getLogs() {
     return Object.values(this._logs.get()).sort(
-      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
     );
   }
 

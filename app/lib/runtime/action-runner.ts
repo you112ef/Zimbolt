@@ -74,7 +74,7 @@ export class ActionRunner {
   constructor(
     webcontainerPromise: Promise<WebContainer>,
     getShellTerminal: () => BoltShell,
-    onAlert?: (alert: ActionAlert) => void,
+    onAlert?: (alert: ActionAlert) => void
   ) {
     this.#webcontainer = webcontainerPromise;
     this.#shellTerminal = getShellTerminal;

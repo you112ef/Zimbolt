@@ -1,37 +1,27 @@
 // app/components/chat/BaseChat/BaseChat.tsx
 
-import React, {
-  forwardRef,
-  useCallback,
-  useEffect,
-  useState,
-} from 'react';
-import type { JSX } from 'react';
+import React, { forwardRef, useCallback, useEffect, useState } from 'react';
 import type { Message } from 'ai';
 import { ClientOnly } from 'remix-utils/client-only';
 import Cookies from 'js-cookie';
-import { Tooltip } from '@radix-ui/react-tooltip';
+import * as Tooltip from '@radix-ui/react-tooltip';
 
-import { Menu } from '~/components/sidebar/Menu.client';
-import { Workbench } from '~/components/workbench/Workbench.client';
+import Menu from '~/components/sidebar/Menu.client';
+import Workbench from '~/components/workbench/Workbench.client';
 import { classNames } from '~/utils/classNames';
-import {
-  MODEL_LIST,
-  PROVIDER_LIST,
-  initializeModelList,
-} from '~/utils/constants';
-import { Messages } from '../Messages.client';
-import { APIKeyManager, getApiKeysFromCookies } from '../APIKeyManager';
+import { MODEL_LIST, PROVIDER_LIST, initializeModelList } from '~/utils/constants';
+import Messages from '~/components/chat/Messages.client';
+import { APIKeyManager, getApiKeysFromCookies } from '~/components/chat/APIKeyManager';
 import { IconButton } from '~/components/ui/IconButton';
-import { SendButton } from '../SendButton.client';
-import { ExportChatButton } from '../chatExportAndImport/ExportChatButton';
-import { ImportButtons } from '../chatExportAndImport/ImportButtons';
-import { ExamplePrompts } from '../ExamplePrompts';
-import GitCloneButton from '../GitCloneButton';
-import FilePreview from '../FilePreview';
-import { ModelSelector } from '../ModelSelector';
-import StarterTemplates from '../StarterTemplates';
-import ChatAlert from '../ChatAlert';
+import { SendButton } from '~/components/chat/SendButton.client';
+import ExportChatButton from '~/components/chat/chatExportAndImport/ExportChatButton';
+import ImportButtons from '~/components/chat/chatExportAndImport/ImportButtons';
+import { ExamplePrompts } from '~/components/chat/ExamplePrompts';
+import GitCloneButton from '~/components/chat/GitCloneButton';
+import FilePreview from '~/components/chat/FilePreview';
+import { ModelSelector } from '~/components/chat/ModelSelector';
+import StarterTemplates from '~/components/chat/StarterTemplates';
+import ChatAlert from '~/components/chat/ChatAlert';
 
 import type { ActionAlert } from '~/types/actions';
 import type { IProviderSetting, ProviderInfo } from '~/types/model';
@@ -43,7 +33,7 @@ import { SpeechRecognitionManager } from './SpeechRecognitionManager';
 import { FileUploadManager } from './FileUploadManager';
 import { ModelSettingsPanel } from './ModelSettingsPanel';
 import { ChatFooter } from './ChatFooter';
-import { ScreenshotStateManager } from '../ScreenshotStateManager';
+import { ScreenshotStateManager } from '~/components/chat/ScreenshotStateManager';
 
 // Import your own custom Ref types from refs.ts
 import type { RefObject, RefCallback } from '~/types/refs';
@@ -67,10 +57,7 @@ interface BaseChatProps {
   enhancingPrompt?: boolean;
   handleInputChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
   enhancePrompt?: () => void;
-  sendMessage?: (
-    event: React.UIEvent<HTMLTextAreaElement>, 
-    messageInput?: string
-  ) => void;
+  sendMessage?: (event: React.UIEvent<HTMLTextAreaElement>, messageInput?: string) => void;
   handleStop?: () => void;
   importChat?: (description: string, messages: Message[]) => Promise<void>;
   exportChat?: () => void;
@@ -127,10 +114,13 @@ const BaseChat = forwardRef<HTMLDivElement, BaseChatProps>(
     // Retrieve provider settings from cookies
     const getProviderSettings = useCallback(() => {
       let providerSettings: Record<string, IProviderSetting> | undefined;
+
       try {
         const savedProviderSettings = Cookies.get('providers');
+
         if (savedProviderSettings) {
           const parsed = JSON.parse(savedProviderSettings);
+
           if (typeof parsed === 'object' && parsed !== null) {
             providerSettings = parsed;
           }
@@ -139,6 +129,7 @@ const BaseChat = forwardRef<HTMLDivElement, BaseChatProps>(
         console.error('Error loading Provider Settings from cookies:', error);
         Cookies.remove('providers'); // clear invalid data
       }
+
       return providerSettings;
     }, []);
 
@@ -182,6 +173,7 @@ const BaseChat = forwardRef<HTMLDivElement, BaseChatProps>(
 
       if (providerInstance && providerInstance.getDynamicModels) {
         setIsModelLoading(providerName);
+
         try {
           const providerSettings = getProviderSettings();
           const staticModels = providerInstance.staticModels;
@@ -199,10 +191,7 @@ const BaseChat = forwardRef<HTMLDivElement, BaseChatProps>(
     };
 
     // Helper to handle sending a message
-    const handleSendMessage = (
-      event: React.UIEvent<HTMLTextAreaElement>,
-      messageInput?: string
-    ) => {
+    const handleSendMessage = (event: React.UIEvent<HTMLTextAreaElement>, messageInput?: string) => {
       if (sendMessage) {
         sendMessage(event, messageInput);
       }
@@ -237,7 +226,7 @@ const BaseChat = forwardRef<HTMLDivElement, BaseChatProps>(
         className={classNames(styles.BaseChat, 'relative flex h-full w-full overflow-hidden')}
         data-chat-visible={showChat}
       >
-        <ClientOnly>{() => <Menu />}</ClientOnly>
+        <ClientOnly fallback={<div>Loading...</div>}>{() => <Menu />}</ClientOnly>
         <div ref={scrollRef} className="flex flex-col lg:flex-row overflow-y-auto w-full h-full">
           <div className={classNames(styles.Chat, 'flex flex-col flex-grow lg:min-w-[var(--chat-min-width)] h-full')}>
             {/* Intro Section (only if !chatStarted) */}
@@ -255,7 +244,7 @@ const BaseChat = forwardRef<HTMLDivElement, BaseChatProps>(
             {/* Main Chat Section */}
             <div className={classNames('pt-6 px-2 sm:px-6', { 'h-full flex flex-col': chatStarted })}>
               {/* Messages */}
-              <ClientOnly>
+              <ClientOnly fallback={<div>Loading...</div>}>
                 {() =>
                   chatStarted ? (
                     <Messages
@@ -270,10 +259,9 @@ const BaseChat = forwardRef<HTMLDivElement, BaseChatProps>(
 
               {/* Prompt / Action Area */}
               <div
-                className={classNames(
-                  'flex flex-col gap-4 w-full max-w-chat mx-auto z-prompt mb-6',
-                  { 'sticky bottom-2': chatStarted }
-                )}
+                className={classNames('flex flex-col gap-4 w-full max-w-chat mx-auto z-prompt mb-6', {
+                  'sticky bottom-2': chatStarted,
+                })}
               >
                 {/* Chat Alert (if any) */}
                 <div className="bg-bolt-elements-background-depth-2">
@@ -366,19 +354,22 @@ const BaseChat = forwardRef<HTMLDivElement, BaseChatProps>(
                     <ImportButtons importChat={importChat} />
                     <GitCloneButton importChat={importChat} />
                   </div>
-                  <ExamplePrompts sendMessage={(event, messageInput) => {
-                    if (isStreaming) {
-                      handleStop?.();
-                      return;
-                    }
-                    handleSendMessage(event, messageInput);
-                  }} />
+                  <ExamplePrompts
+                    onPromptSelect={(event: React.UIEvent<HTMLTextAreaElement>, messageInput: string) => {
+                      if (isStreaming) {
+                        handleStop?.();
+                        return;
+                      }
+
+                      handleSendMessage(event, messageInput);
+                    }}
+                  />
                   <StarterTemplates />
                 </div>
               )}
 
               {/* Workbench */}
-              <ClientOnly>
+              <ClientOnly fallback={<div>Loading...</div>}>
                 {() => <Workbench chatStarted={chatStarted} isStreaming={isStreaming} />}
               </ClientOnly>
             </div>
@@ -387,11 +378,7 @@ const BaseChat = forwardRef<HTMLDivElement, BaseChatProps>(
       </div>
     );
 
-    return (
-      <Tooltip.Provider delayDuration={200}>
-        {baseChat}
-      </Tooltip.Provider>
-    );
+    return <Tooltip.Root delayDuration={200}>{baseChat}</Tooltip.Root>;
   }
 );
 

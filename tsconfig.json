@@ -29,12 +29,6 @@
     "typeRoots": ["./node_modules/@types", "./app/types"],
     "types": ["node", "react", "react-dom"]
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "app/**/*.ts",
-    "app/**/*.tsx",
-    "app/types/**/*.d.ts"
-  ],
+  "include": ["**/*.ts", "**/*.tsx", "app/**/*.ts", "app/**/*.tsx", "app/types/**/*.d.ts"],
   "exclude": ["node_modules", "dist", "**/*.js"]
 }

@@ -10,6 +10,7 @@ export function getStringEnv(env: ImportMetaEnv): Record<string, string> {
 
   for (const key in env) {
     const value = env[key];
+
     if (typeof value === 'string') {
       stringEnv[key] = value;
     }

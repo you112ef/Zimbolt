@@ -274,7 +274,7 @@ export class WorkbenchStore {
           }
 
           this.actionAlert.set(alert);
-        },
+        }
       ),
     });
   }
@@ -489,7 +489,7 @@ export class WorkbenchStore {
           }
 
           return null;
-        }),
+        })
       );
 
       const validBlobs = blobs.filter(Boolean); // Filter out any undefined blobs

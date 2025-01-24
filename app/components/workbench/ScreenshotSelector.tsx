@@ -145,10 +145,10 @@ const ScreenshotSelectorComponent = memo(
 
         // Calculate the scaled coordinates with scroll offset and adjustments
         const scaledX = Math.round(
-          (containerRect.left + Math.min(selectionStart.x, selectionEnd.x) + scrollX + leftOffset) * scaleX,
+          (containerRect.left + Math.min(selectionStart.x, selectionEnd.x) + scrollX + leftOffset) * scaleX
         );
         const scaledY = Math.round(
-          (containerRect.top + Math.min(selectionStart.y, selectionEnd.y) + scrollY + bottomOffset) * scaleY,
+          (containerRect.top + Math.min(selectionStart.y, selectionEnd.y) + scrollY + bottomOffset) * scaleY
         );
         const scaledWidth = Math.round(Math.abs(selectionEnd.x - selectionStart.x) * scaleX);
         const scaledHeight = Math.round(Math.abs(selectionEnd.y - selectionStart.y) * scaleY);
@@ -237,7 +237,7 @@ const ScreenshotSelectorComponent = memo(
         setSelectionStart({ x, y });
         setSelectionEnd({ x, y });
       },
-      [isSelectionMode],
+      [isSelectionMode]
     );
 
     const handleSelectionMove = useCallback(
@@ -254,7 +254,7 @@ const ScreenshotSelectorComponent = memo(
         const y = e.clientY - rect.top;
         setSelectionEnd({ x, y });
       },
-      [isSelectionMode, selectionStart],
+      [isSelectionMode, selectionStart]
     );
 
     if (!isSelectionMode) {
@@ -295,7 +295,7 @@ const ScreenshotSelectorComponent = memo(
         )}
       </div>
     );
-  },
+  }
 );
 
 /**
@@ -304,9 +304,7 @@ const ScreenshotSelectorComponent = memo(
 const screenshotSelectorFallback = (
   <div className="error-fallback p-4 bg-red-100 text-red-700 rounded flex flex-col items-center justify-center min-h-screen">
     <h1 className="text-3xl font-bold text-red-600 mb-4">Something Went Wrong</h1>
-    <p className="text-lg text-red-500 mb-6">
-      We're sorry for the inconvenience. Please try refreshing the page.
-    </p>
+    <p className="text-lg text-red-500 mb-6">We're sorry for the inconvenience. Please try refreshing the page.</p>
     <button
       onClick={() => window.location.reload()}
       className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
@@ -321,8 +319,11 @@ const screenshotSelectorFallback = (
  */
 const handleScreenshotSelectorError = (error: Error, errorInfo: React.ErrorInfo) => {
   console.error('Error in ScreenshotSelector:', error, errorInfo);
-  // Optionally, send error details to a monitoring service like Sentry
-  // Sentry.captureException(error, { extra: errorInfo });
+
+  /*
+   * Optionally, send error details to a monitoring service like Sentry
+   * Sentry.captureException(error, { extra: errorInfo });
+   */
 };
 
 /**

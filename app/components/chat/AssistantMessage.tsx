@@ -9,7 +9,7 @@ interface AssistantMessageProps {
 
 export const AssistantMessage = memo(({ content, annotations }: AssistantMessageProps) => {
   const filteredAnnotations = (annotations?.filter(
-    (annotation: JSONValue) => annotation && typeof annotation === 'object' && Object.keys(annotation).includes('type'),
+    (annotation: JSONValue) => annotation && typeof annotation === 'object' && Object.keys(annotation).includes('type')
   ) || []) as { type: string; value: any }[];
 
   const usage: {

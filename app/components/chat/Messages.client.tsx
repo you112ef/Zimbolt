@@ -89,7 +89,7 @@ const MessagesComponent = React.forwardRef<HTMLDivElement, MessagesProps>((props
                           key="i-ph:arrow-u-up-left"
                           className={classNames(
                             'i-ph:arrow-u-up-left',
-                            'text-xl text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors',
+                            'text-xl text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors'
                           )}
                         />
                       </WithTooltip>
@@ -101,7 +101,7 @@ const MessagesComponent = React.forwardRef<HTMLDivElement, MessagesProps>((props
                         key="i-ph:git-fork"
                         className={classNames(
                           'i-ph:git-fork',
-                          'text-xl text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors',
+                          'text-xl text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors'
                         )}
                       />
                     </WithTooltip>
@@ -128,8 +128,11 @@ const messagesFallback = (
 // Step 4: Define an error handler (optional)
 const handleMessagesError = (error: Error, errorInfo: React.ErrorInfo) => {
   console.error('Error in Messages:', error, errorInfo);
-  // Optionally, report to an external service like Sentry
-  // Sentry.captureException(error, { extra: errorInfo });
+
+  /*
+   * Optionally, report to an external service like Sentry
+   * Sentry.captureException(error, { extra: errorInfo });
+   */
 };
 
 // Step 5: Wrap the component with the HOC

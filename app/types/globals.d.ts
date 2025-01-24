@@ -62,6 +62,8 @@ declare module 'vite-plugin-node-polyfills';
 declare module 'vite-plugin-optimize-css-modules';
 declare module 'vite-tsconfig-paths';
 
-// If there are other modules that TypeScript complains about, declare them here
-// Example:
-// declare module 'some-unknown-module';
+/*
+ * If there are other modules that TypeScript complains about, declare them here
+ * Example:
+ * declare module 'some-unknown-module';
+ */

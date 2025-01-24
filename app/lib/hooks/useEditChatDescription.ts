@@ -141,7 +141,7 @@ export function useEditChatDescription({
 
       toggleEditMode();
     },
-    [currentDescription, db, chatId, initialDescription, customChatId],
+    [currentDescription, db, chatId, initialDescription, customChatId]
   );
 
   const handleKeyDown = useCallback(
@@ -150,7 +150,7 @@ export function useEditChatDescription({
         await handleBlur();
       }
     },
-    [handleBlur],
+    [handleBlur]
   );
 
   return {

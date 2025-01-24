@@ -89,8 +89,8 @@ export const TerminalComponent = memo(
       }, []);
 
       return <div className={className} ref={terminalElementRef} />;
-    },
-  ),
+    }
+  )
 );
 
 // Step 3: Create a fallback UI specific to this component
@@ -103,8 +103,11 @@ const terminalFallback = (
 // Step 4: Define an error handler (optional)
 const handleTerminalError = (error: Error, errorInfo: React.ErrorInfo) => {
   console.error('Error in Terminal:', error, errorInfo);
-  // Optionally, report to an external service like Sentry
-  // Sentry.captureException(error, { extra: errorInfo });
+
+  /*
+   * Optionally, report to an external service like Sentry
+   * Sentry.captureException(error, { extra: errorInfo });
+   */
 };
 
 // Step 5: Wrap the component with the HOC

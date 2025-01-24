@@ -18,7 +18,7 @@ export const PanelHeaderButton = memo(
           {
             [classNames('opacity-30', disabledClassName)]: disabled,
           },
-          className,
+          className
         )}
         disabled={disabled}
         onClick={(event) => {
@@ -32,5 +32,5 @@ export const PanelHeaderButton = memo(
         {children}
       </button>
     );
-  },
+  }
 );

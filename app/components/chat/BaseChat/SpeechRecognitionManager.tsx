@@ -1,6 +1,6 @@
 // app/components/chat/BaseChat/SpeechRecognitionManager.tsx
 import React, { useEffect, useState } from 'react';
-import { SpeechRecognitionButton } from '../SpeechRecognition';
+import { SpeechRecognitionButton } from '~/components/chat/SpeechRecognition';
 
 interface SpeechRecognitionManagerProps {
   isStreaming?: boolean;
@@ -11,19 +11,20 @@ interface SpeechRecognitionManagerProps {
 
 export function SpeechRecognitionManager({
   isStreaming,
-  handleStop,
+  _handleStop,
   handleInputChange,
-  sendMessage,
+  _sendMessage,
 }: SpeechRecognitionManagerProps) {
   const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const SpeechRecognitionConstructor =
-      (window as any).SpeechRecognition ||
-      (window as any).webkitSpeechRecognition;
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const SpeechRecognitionConstructor = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognitionConstructor) {
       console.warn('Speech recognition is not supported in this browser.');
@@ -56,6 +57,7 @@ export function SpeechRecognitionManager({
     };
 
     setRecognition(sr);
+
     return () => {
       sr.abort();
       setRecognition(null);
@@ -89,7 +91,7 @@ export function SpeechRecognitionManager({
         isListening={isListening}
         onStart={startListening}
         onStop={stopListening}
-        disabled={isStreaming}
+        disabled={isStreaming ?? false}
       />
       {/* 
         Optionally: if you want to auto-stop listening when user sends a message,

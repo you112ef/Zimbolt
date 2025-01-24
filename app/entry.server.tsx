@@ -14,10 +14,12 @@ export default async function handleRequest(
   responseStatusCode: number,
   responseHeaders: Headers,
   remixContext: EntryContext,
-  _loadContext: AppLoadContext,
+  _loadContext: AppLoadContext
 ) {
-  // Optional: Initialize model list or other server-side tasks
-  // await initializeModelList({});
+  /*
+   * Optional: Initialize model list or other server-side tasks
+   * await initializeModelList({});
+   */
 
   let readable: ReadableStream<Uint8Array>;
 
@@ -31,6 +33,7 @@ export default async function handleRequest(
     });
   } catch (error) {
     console.error('Failed to render:', error);
+
     // Render a simple error page if server-side rendering fails
     const errorPage = `
       <!DOCTYPE html>
@@ -55,6 +58,7 @@ export default async function handleRequest(
         </body>
       </html>
     `;
+
     return new Response(errorPage, {
       status: 500,
       headers: {
@@ -72,9 +76,9 @@ export default async function handleRequest(
       controller.enqueue(
         new Uint8Array(
           new TextEncoder().encode(
-            `<!DOCTYPE html><html lang="en" data-theme="${themeStore.value}"><head>${head}</head><body><div id="root" class="w-full h-full">`,
-          ),
-        ),
+            `<!DOCTYPE html><html lang="en" data-theme="${themeStore.value}"><head>${head}</head><body><div id="root" class="w-full h-full">`
+          )
+        )
       );
 
       const reader = readable.getReader();

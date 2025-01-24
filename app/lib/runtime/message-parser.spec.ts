@@ -203,7 +203,7 @@ function runTest(input: string | string[], outputOrExpectedResult: string | Expe
     const callbackName = name;
 
     expect(callbacks[callbackName as keyof typeof callbacks]).toHaveBeenCalledTimes(
-      expected.callbacks[callbackName as keyof typeof expected.callbacks] ?? 0,
+      expected.callbacks[callbackName as keyof typeof expected.callbacks] ?? 0
     );
   }
 

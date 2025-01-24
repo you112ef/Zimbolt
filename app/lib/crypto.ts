@@ -12,7 +12,7 @@ export async function encrypt(key: string, data: string) {
       iv,
     },
     cryptoKey,
-    encoder.encode(data),
+    encoder.encode(data)
   );
 
   const bundle = new Uint8Array(IV_LENGTH + ciphertext.byteLength);
@@ -37,7 +37,7 @@ export async function decrypt(key: string, payload: string) {
       iv,
     },
     cryptoKey,
-    ciphertext,
+    ciphertext
   );
 
   return decoder.decode(plaintext);

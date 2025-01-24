@@ -93,7 +93,7 @@ export class LLMManager {
         .filter((provider) => enabledProviders.includes(provider.name))
         .filter(
           (provider): provider is BaseProvider & Required<Pick<ProviderInfo, 'getDynamicModels'>> =>
-            !!provider.getDynamicModels,
+            !!provider.getDynamicModels
         )
         .map(async (provider) => {
           const cachedModels = provider.getModelsFromCache(options);
@@ -116,7 +116,7 @@ export class LLMManager {
             });
 
           return dynamicModels;
-        }),
+        })
     );
 
     // Combine static and dynamic models
@@ -137,7 +137,7 @@ export class LLMManager {
       apiKeys?: Record<string, string>;
       providerSettings?: Record<string, IProviderSetting>;
       serverEnv?: Record<string, string>;
-    },
+    }
   ): Promise<ModelInfo[]> {
     const provider = this._providers.get(providerArg.name);
 

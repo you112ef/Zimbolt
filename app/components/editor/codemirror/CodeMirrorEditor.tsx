@@ -254,7 +254,7 @@ const CodeMirrorEditorComponent = memo(
         editable,
         languageCompartment,
         autoFocusOnDocumentChange,
-        doc as TextEditorDocument,
+        doc as TextEditorDocument
       );
     }, [doc?.value, editable, doc?.filePath, autoFocusOnDocumentChange]);
 
@@ -264,7 +264,7 @@ const CodeMirrorEditorComponent = memo(
         <div className="h-full overflow-hidden" ref={containerRef} />
       </div>
     );
-  },
+  }
 );
 
 // Step 3: Create a fallback UI specific to this component
@@ -277,8 +277,11 @@ const codeMirrorEditorFallback = (
 // Step 4: Define an error handler (optional)
 const handleCodeMirrorEditorError = (error: Error, errorInfo: React.ErrorInfo) => {
   console.error('Error in CodeMirrorEditor:', error, errorInfo);
-  // Optionally, report to an external service like Sentry
-  // Sentry.captureException(error, { extra: errorInfo });
+
+  /*
+   * Optionally, report to an external service like Sentry
+   * Sentry.captureException(error, { extra: errorInfo });
+   */
 };
 
 // Step 5: Wrap the component with the HOC
@@ -299,7 +302,7 @@ function newEditorState(
   onScrollRef: MutableRefObject<OnScrollCallback | undefined>,
   debounceScroll: number,
   onFileSaveRef: MutableRefObject<OnSaveCallback | undefined>,
-  extensions: Extension[],
+  extensions: Extension[]
 ) {
   return EditorState.create({
     doc: content,
@@ -405,7 +408,7 @@ function setEditorDocument(
   editable: boolean,
   languageCompartment: Compartment,
   autoFocus: boolean,
-  doc: TextEditorDocument,
+  doc: TextEditorDocument
 ) {
   if (doc.value !== view.state.doc.toString()) {
     view.dispatch({
@@ -447,7 +450,7 @@ function setEditorDocument(
             () => {
               view.focus();
             },
-            { once: true },
+            { once: true }
           );
         } else {
           // if the scroll position is still the same we can focus immediately

@@ -73,14 +73,14 @@ export const PreviewComponent = memo(() => {
 
       return false;
     },
-    [activePreview],
+    [activePreview]
   );
 
   const findMinPortIndex = useCallback(
     (minIndex: number, preview: { port: number }, index: number, array: { port: number }[]) => {
       return preview.port < array[minPortIndex].port ? index : minPortIndex;
     },
-    [],
+    []
   );
 
   // When previews change, display the lowest port if user hasn't selected a preview
@@ -404,8 +404,11 @@ const previewFallback = (
 // Step 4: Define an error handler (optional)
 const handlePreviewError = (error: Error, errorInfo: React.ErrorInfo) => {
   console.error('Error in Preview:', error, errorInfo);
-  // Optionally, report to an external service like Sentry
-  // Sentry.captureException(error, { extra: errorInfo });
+
+  /*
+   * Optionally, report to an external service like Sentry
+   * Sentry.captureException(error, { extra: errorInfo });
+   */
 };
 
 // Step 5: Wrap the component with the HOC

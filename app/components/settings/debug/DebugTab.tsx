@@ -62,7 +62,7 @@ const GITHUB_URLS = {
       const data: { sha: string } = await response.json();
 
       const packageJsonResp = await fetch(
-        `https://raw.githubusercontent.com/stackblitz-labs/bolt.diy/${branch}/package.json`,
+        `https://raw.githubusercontent.com/stackblitz-labs/bolt.diy/${branch}/package.json`
       );
       const packageJson: { version: string } = await packageJsonResp.json();
 
@@ -294,7 +294,7 @@ const checkProviderStatus = async (url: string | null, providerName: string): Pr
           console.log(`[Debug] Endpoint ${checkUrl} failed:`, error);
           return false;
         }
-      }),
+      })
     );
 
     const isRunning = results.some((result) => result);
@@ -361,7 +361,7 @@ export default function DebugTab() {
               ...status,
               enabled: provider.settings.enabled ?? false,
             };
-          }),
+          })
       );
 
       setActiveProviders(statuses);
@@ -399,7 +399,7 @@ export default function DebugTab() {
         setUpdateMessage(
           `Update available from ${branchToCheck} branch!\n` +
             `Current: ${currentCommitHash.slice(0, 7)}\n` +
-            `Latest: ${remoteCommitHash.slice(0, 7)}`,
+            `Latest: ${remoteCommitHash.slice(0, 7)}`
         );
       } else {
         setUpdateMessage(`You are on the latest version from the ${branchToCheck} branch`);

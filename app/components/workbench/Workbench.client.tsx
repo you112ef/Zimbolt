@@ -141,7 +141,7 @@ const WorkbenchComponent = memo(({ chatStarted, isStreaming }: WorkspaceProps) =
               'left-0': showWorkbench && isSmallViewport,
               'left-[var(--workbench-left)]': showWorkbench,
               'left-[100%]': !showWorkbench,
-            },
+            }
           )}
         >
           <div className="absolute inset-0 px-2 lg:px-6">
@@ -178,7 +178,7 @@ const WorkbenchComponent = memo(({ chatStarted, isStreaming }: WorkspaceProps) =
                       onClick={() => {
                         const repoName = prompt(
                           'Please enter a name for your new GitHub repository:',
-                          'bolt-generated-project',
+                          'bolt-generated-project'
                         );
 
                         if (!repoName) {
@@ -274,8 +274,11 @@ const workbenchFallback = (
 // Step 4: Define an error handler (optional)
 const handleWorkbenchError = (error: Error, errorInfo: React.ErrorInfo) => {
   console.error('Error in Workbench:', error, errorInfo);
-  // Optionally, report to an external service like Sentry
-  // Sentry.captureException(error, { extra: errorInfo });
+
+  /*
+   * Optionally, report to an external service like Sentry
+   * Sentry.captureException(error, { extra: errorInfo });
+   */
 };
 
 // Step 5: Wrap the component with the HOC

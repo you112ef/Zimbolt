@@ -6,10 +6,10 @@ declare global {
   interface ImportMetaEnv {
     VITE_GITHUB_ACCESS_TOKEN?: string;
     VITE_DISABLE_PERSISTENCE?: string;
-    DEV?: string;          // Changed from boolean to string
-    PROD?: string;         // Changed from boolean to string
+    DEV?: string; // Changed from boolean to string
+    PROD?: string; // Changed from boolean to string
     VITE_LOG_LEVEL?: string;
-    SSR?: string;          // Changed from boolean to string
+    SSR?: string; // Changed from boolean to string
     // Add other environment variables as needed
 
     // Index signature to allow accessing properties dynamically

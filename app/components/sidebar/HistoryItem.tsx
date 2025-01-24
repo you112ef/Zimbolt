@@ -47,7 +47,7 @@ export function HistoryItem({ item, onDelete, onDuplicate, exportChat }: History
     <div
       className={classNames(
         'group rounded-md text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary hover:bg-bolt-elements-background-depth-3 overflow-hidden flex justify-between items-center px-2 py-1',
-        { '[&&]:text-bolt-elements-textPrimary bg-bolt-elements-background-depth-3': isActiveChat },
+        { '[&&]:text-bolt-elements-textPrimary bg-bolt-elements-background-depth-3': isActiveChat }
       )}
     >
       {editing ? (
@@ -58,7 +58,7 @@ export function HistoryItem({ item, onDelete, onDuplicate, exportChat }: History
           <div
             className={classNames(
               'absolute right-0 z-1 top-0 bottom-0 bg-gradient-to-l from-bolt-elements-background-depth-2 group-hover:from-bolt-elements-background-depth-3 box-content pl-3 to-transparent w-10 flex justify-end group-hover:w-22 group-hover:from-99%',
-              { 'from-bolt-elements-background-depth-3 w-10 ': isActiveChat },
+              { 'from-bolt-elements-background-depth-3 w-10 ': isActiveChat }
             )}
           >
             <div className="flex items-center p-1 text-bolt-elements-textSecondary opacity-0 group-hover:opacity-100 transition-opacity">
@@ -118,7 +118,7 @@ const ChatActionButton = forwardRef(
       onClick: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
       btnTitle?: string;
     },
-    ref: ForwardedRef<HTMLButtonElement>,
+    ref: ForwardedRef<HTMLButtonElement>
   ) => {
     return (
       <WithTooltip tooltip={toolTipContent}>
@@ -130,5 +130,5 @@ const ChatActionButton = forwardRef(
         />
       </WithTooltip>
     );
-  },
+  }
 );

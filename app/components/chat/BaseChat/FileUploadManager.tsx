@@ -28,9 +28,13 @@ export function FileUploadManager({
     input.onchange = (e: Event) => {
       const target = e.target as HTMLInputElement;
       const file = target.files?.[0];
-      if (!file) return;
+
+      if (!file) {
+        return;
+      }
 
       const reader = new FileReader();
+
       reader.onload = (ev) => {
         const base64Image = ev.target?.result as string;
         setUploadedFiles?.([...uploadedFiles, file]);
@@ -69,6 +73,7 @@ export function FileUploadManager({
       files.forEach((file) => {
         if (file.type.startsWith('image/')) {
           const reader = new FileReader();
+
           reader.onload = (ev) => {
             const base64Image = ev.target?.result as string;
             setUploadedFiles?.([...uploadedFiles, file]);
@@ -76,6 +81,7 @@ export function FileUploadManager({
           };
           reader.readAsDataURL(file);
         }
+
         // If you wish to handle non-image files differently, you can do it here.
       });
     },
@@ -92,11 +98,7 @@ export function FileUploadManager({
       <div
         className={`
           transition-all p-4 rounded
-          ${
-            isDragOver
-              ? 'border-2 border-[#1488fc]'
-              : 'border border-[var(--bolt-elements-borderColor)]'
-          }
+          ${isDragOver ? 'border-2 border-[#1488fc]' : 'border border-[var(--bolt-elements-borderColor)]'}
         `}
         onDragEnter={handleDragEnter}
         onDragOver={handleDragOver}

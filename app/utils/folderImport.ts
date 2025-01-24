@@ -5,7 +5,7 @@ import { detectProjectCommands, createCommandsMessage } from './projectCommands'
 export const createChatFromFolder = async (
   files: File[],
   binaryFiles: string[],
-  folderName: string,
+  folderName: string
 ): Promise<Message[]> => {
   const fileArtifacts = await Promise.all(
     files.map(async (file) => {
@@ -23,7 +23,7 @@ export const createChatFromFolder = async (
         reader.onerror = reject;
         reader.readAsText(file);
       });
-    }),
+    })
   );
 
   const commands = await detectProjectCommands(fileArtifacts);
@@ -43,7 +43,7 @@ ${fileArtifacts
   .map(
     (file) => `<boltAction type="file" filePath="${file.path}">
 ${file.content}
-</boltAction>`,
+</boltAction>`
   )
   .join('\n\n')}
 </boltArtifact>`,

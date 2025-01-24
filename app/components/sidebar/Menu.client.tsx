@@ -3,24 +3,11 @@
 import { motion, type Variants } from 'framer-motion';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
-import {
-  Dialog,
-  DialogButton,
-  DialogDescription,
-  DialogRoot,
-  DialogTitle,
-} from '~/components/ui/Dialog';
+import { Dialog, DialogButton, DialogDescription, DialogRoot, DialogTitle } from '~/components/ui/Dialog';
 import { ThemeSwitch } from '~/components/ui/ThemeSwitch';
 import { SettingsWindow } from '~/components/settings/SettingsWindow';
 import { SettingsButton } from '~/components/ui/SettingsButton';
-import {
-  db,
-  deleteById,
-  getAll,
-  chatId,
-  type ChatHistoryItem,
-  useChatHistory,
-} from '~/lib/persistence';
+import { db, deleteById, getAll, chatId, type ChatHistoryItem, useChatHistory } from '~/lib/persistence';
 import { cubicEasingFn } from '~/utils/easings';
 import { logger } from '~/utils/logger';
 import { HistoryItem } from './HistoryItem';
@@ -84,6 +71,7 @@ function MenuComponent() {
         deleteById(db, item.id)
           .then(() => {
             loadEntries();
+
             if (chatId.get() === item.id) {
               // Hard page navigation to clear the stores
               window.location.pathname = '/';
@@ -117,15 +105,13 @@ function MenuComponent() {
         setOpen(true);
       }
 
-      if (
-        menuRef.current &&
-        event.clientX > menuRef.current.getBoundingClientRect().right + exitThreshold
-      ) {
+      if (menuRef.current && event.clientX > menuRef.current.getBoundingClientRect().right + exitThreshold) {
         setOpen(false);
       }
     }
 
     window.addEventListener('mousemove', onMouseMove);
+
     return () => {
       window.removeEventListener('mousemove', onMouseMove);
     };
@@ -171,9 +157,7 @@ function MenuComponent() {
             />
           </div>
         </div>
-        <div className="text-bolt-elements-textPrimary font-medium pl-6 pr-5 my-2">
-          Your Chats
-        </div>
+        <div className="text-bolt-elements-textPrimary font-medium pl-6 pr-5 my-2">Your Chats</div>
         <div className="flex-1 overflow-auto pl-4 pr-5 pb-5">
           {filteredList.length === 0 && (
             <div className="pl-2 text-bolt-elements-textTertiary">
@@ -255,8 +239,7 @@ function CurrentDateTime() {
   return (
     <div className="flex items-center gap-2 px-4 py-3 font-bold text-gray-700 dark:text-gray-300 border-b border-bolt-elements-borderColor">
       <div className="h-4 w-4 i-ph:clock-thin" />
-      {dateTime.toLocaleDateString()}{' '}
-      {dateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+      {dateTime.toLocaleDateString()} {dateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
     </div>
   );
 }
@@ -267,9 +250,7 @@ function CurrentDateTime() {
 const menuFallback = (
   <div className="error-fallback p-4 bg-red-100 text-red-700 rounded flex flex-col items-center justify-center min-h-screen">
     <h1 className="text-3xl font-bold text-red-600 mb-4">Something Went Wrong</h1>
-    <p className="text-lg text-red-500 mb-6">
-      We're sorry for the inconvenience. Please try refreshing the page.
-    </p>
+    <p className="text-lg text-red-500 mb-6">We're sorry for the inconvenience. Please try refreshing the page.</p>
     <button
       onClick={() => window.location.reload()}
       className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
@@ -284,8 +265,11 @@ const menuFallback = (
  */
 const handleMenuError = (error: Error, errorInfo: React.ErrorInfo) => {
   console.error('Error in Menu:', error, errorInfo);
-  // Optionally, send error details to a monitoring service like Sentry
-  // Sentry.captureException(error, { extra: errorInfo });
+
+  /*
+   * Optionally, send error details to a monitoring service like Sentry
+   * Sentry.captureException(error, { extra: errorInfo });
+   */
 };
 
 /**

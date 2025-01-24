@@ -61,8 +61,11 @@ const userMessageFallback = (
 // Step 4: Define an error handler (optional)
 const handleUserMessageError = (error: Error, errorInfo: React.ErrorInfo) => {
   console.error('Error in UserMessage:', error, errorInfo);
-  // Optionally, report to an external service like Sentry
-  // Sentry.captureException(error, { extra: errorInfo });
+
+  /*
+   * Optionally, report to an external service like Sentry
+   * Sentry.captureException(error, { extra: errorInfo });
+   */
 };
 
 // Step 5: Wrap the component with the HOC

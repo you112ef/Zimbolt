@@ -21,7 +21,7 @@ ${templates
   <description>${template.description}</description>
   ${template.tags ? `<tags>${template.tags.join(', ')}</tags>` : ''}
 </template>
-`,
+`
   )
   .join('\n')}
 
@@ -112,7 +112,7 @@ export const selectStarterTemplate = async (options: { message: string; model: s
 
 const getGitHubRepoContent = async (
   repoName: string,
-  path: string = '',
+  path: string = ''
 ): Promise<{ name: string; path: string; content: string }[]> => {
   const baseUrl = 'https://api.github.com';
 
@@ -178,7 +178,7 @@ const getGitHubRepoContent = async (
         }
 
         return [];
-      }),
+      })
     );
 
     // Flatten the array of contents
@@ -241,7 +241,7 @@ ${filesToImport.files
     (file) =>
       `<boltAction type="file" filePath="${file.path}">
 ${file.content}
-</boltAction>`,
+</boltAction>`
   )
   .join('\n')}
 </boltArtifact>

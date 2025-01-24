@@ -1,10 +1,13 @@
 // app/components/chat/BaseChat/ChatFooter.tsx
 
+'use client';
+
 import React from 'react';
-import { IconButton } from '~/components/ui/IconButton';
-import { SendButton } from '../SendButton.client';
-import classNames from 'classnames'; // if you have classnames installed
+import { IconButton } from '~/components/ui/IconButton'; // Named export
+import { SendButton } from '~/components/chat/SendButton.client'; // Named export
+import classNames from 'classnames';
 import { toast } from 'react-toastify';
+import { Sparkle, CaretDown, CaretRight, Spinner, ArrowRight } from 'phosphor-react'; // Import necessary icons
 
 interface ChatFooterProps {
   textareaRef?: React.RefObject<HTMLTextAreaElement>;
@@ -45,6 +48,10 @@ export function ChatFooter(props: ChatFooterProps) {
     exportChat,
   } = props;
 
+  // Debugging statements
+  console.log('IconButton:', IconButton);
+  console.log('SendButton:', SendButton);
+
   // Triggered by the send button
   const onSendClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (isStreaming) {
@@ -52,6 +59,7 @@ export function ChatFooter(props: ChatFooterProps) {
       handleStop?.();
       return;
     }
+
     // Only send if there's content or uploaded files
     if (input.trim().length > 0 || uploadedFiles.length > 0) {
       handleSendMessage(event as unknown as React.UIEvent<HTMLTextAreaElement>);
@@ -77,12 +85,17 @@ export function ChatFooter(props: ChatFooterProps) {
           onChange={(e) => handleInputChange?.(e)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
-              if (e.shiftKey) return; // allow multi-line
+              if (e.shiftKey) {
+                return; // allow multi-line
+              }
+
               e.preventDefault();
+
               if (isStreaming) {
                 handleStop?.();
                 return;
               }
+
               if (!(e.nativeEvent as any).isComposing) {
                 handleSendMessage(e, undefined);
               }
@@ -104,44 +117,26 @@ export function ChatFooter(props: ChatFooterProps) {
           <IconButton
             title="Enhance prompt"
             disabled={!input || enhancingPrompt}
-            className={classNames('transition-all', enhancingPrompt ? 'opacity-100' : '')}
+            className={classNames('transition-all', {
+              'opacity-100': enhancingPrompt,
+            })}
             onClick={() => {
               enhancePrompt?.();
               toast.success('Prompt enhanced!');
             }}
           >
             {enhancingPrompt ? (
-              <div className="i-svg-spinners:90-ring-with-bg text-bolt-elements-loader-progress text-xl animate-spin" />
+              <Spinner size={20} weight="bold" className="text-bolt-elements-loader-progress animate-spin" />
             ) : (
-              // This is still referencing i-bolt:stars; 
-              // if you want to remove or replace that, change here similarly
-              <div className="i-ph:sparkle text-xl" />
+              <Sparkle size={20} weight="bold" />
             )}
           </IconButton>
 
-          {/* Export */}
+          {/* Export Chat */}
           {exportChat && (
-            <IconButton
-              title="Export Chat"
-              onClick={exportChat}
-            >
-              {/* Removed the old i-bolt:export icon.
-                  Replaced with a simple inline SVG as a placeholder. */}
-              <div className="text-xl">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="w-6 h-6"
-                >
-                  {/* Example shape: a minimal lightning-like path. 
-                     Swap in your new "Zimbolt" shape if desired. */}
-                  <path d="M13 2L3 14h9l-1 8 9-12h-9z" />
-                </svg>
-              </div>
+            <IconButton title="Export Chat" onClick={exportChat}>
+              {/* Using Phosphor's ArrowRight icon as a placeholder */}
+              <ArrowRight size={20} weight="bold" />
             </IconButton>
           )}
 
@@ -149,24 +144,19 @@ export function ChatFooter(props: ChatFooterProps) {
           <IconButton
             title="Model Settings"
             className={classNames('transition-all flex items-center gap-1', {
-              'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent':
-                isModelSettingsCollapsed,
+              'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent': isModelSettingsCollapsed,
               'bg-bolt-elements-item-backgroundDefault text-bolt-elements-item-contentDefault':
                 !isModelSettingsCollapsed,
             })}
             onClick={() => setIsModelSettingsCollapsed((prev) => !prev)}
             disabled={!providerList || providerList.length === 0}
           >
-            <div
-              className={`i-ph:caret-${
-                isModelSettingsCollapsed ? 'right' : 'down'
-              } text-lg`}
-            />
             {isModelSettingsCollapsed ? (
-              <span className="text-xs">{model}</span>
+              <CaretRight size={20} weight="bold" className="text-lg" />
             ) : (
-              <span />
+              <CaretDown size={20} weight="bold" className="text-lg" />
             )}
+            {isModelSettingsCollapsed ? <span className="text-xs">{model}</span> : <span />}
           </IconButton>
         </div>
 

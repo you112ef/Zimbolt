@@ -21,7 +21,7 @@ export function useSearchFilter({
     (event: React.ChangeEvent<HTMLInputElement>) => {
       debouncedSetSearch(event.target.value);
     },
-    [debouncedSetSearch],
+    [debouncedSetSearch]
   );
 
   const filteredItems = useMemo(() => {
@@ -40,7 +40,7 @@ export function useSearchFilter({
         }
 
         return false;
-      }),
+      })
     );
   }, [items, searchQuery, searchFields]);
 

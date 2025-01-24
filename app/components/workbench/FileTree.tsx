@@ -181,7 +181,7 @@ const FileTreeComponent = memo(
         })}
       </div>
     );
-  },
+  }
 );
 
 // Helper components and functions remain unchanged
@@ -310,7 +310,7 @@ function NodeButton({ depth, iconClasses, onClick, className, children }: Button
     <button
       className={classNames(
         'flex items-center gap-1.5 w-full pr-2 border-2 border-transparent text-faded py-0.5',
-        className,
+        className
       )}
       style={{ paddingLeft: `${6 + depth * NODE_PADDING_LEFT}px` }}
       onClick={() => onClick?.()}
@@ -342,7 +342,7 @@ function buildFileList(
   files: FileMap,
   rootFolder = '/',
   hideRoot: boolean,
-  hiddenFiles: Array<string | RegExp>,
+  hiddenFiles: Array<string | RegExp>
 ): Node[] {
   const folderPaths = new Set<string>();
   const fileList: Node[] = [];
@@ -506,8 +506,11 @@ const fileTreeFallback = (
 // Step 4: Define an error handler (optional)
 const handleFileTreeError = (error: Error, errorInfo: React.ErrorInfo) => {
   console.error('Error in FileTree:', error, errorInfo);
-  // Optionally, report to an external service like Sentry
-  // Sentry.captureException(error, { extra: errorInfo });
+
+  /*
+   * Optionally, report to an external service like Sentry
+   * Sentry.captureException(error, { extra: errorInfo });
+   */
 };
 
 // Step 5: Wrap the component with the HOC

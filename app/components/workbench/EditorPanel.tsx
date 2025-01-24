@@ -132,7 +132,7 @@ const EditorPanelComponent = memo(
         <TerminalTabs />
       </PanelGroup>
     );
-  },
+  }
 );
 
 // Step 3: Create a fallback UI specific to this component
@@ -145,8 +145,11 @@ const editorPanelFallback = (
 // Step 4: Define an error handler (optional)
 const handleEditorPanelError = (error: Error, errorInfo: React.ErrorInfo) => {
   console.error('Error in EditorPanel:', error, errorInfo);
-  // Optionally, report to an external service like Sentry
-  // Sentry.captureException(error, { extra: errorInfo });
+
+  /*
+   * Optionally, report to an external service like Sentry
+   * Sentry.captureException(error, { extra: errorInfo });
+   */
 };
 
 // Step 5: Wrap the component with the HOC

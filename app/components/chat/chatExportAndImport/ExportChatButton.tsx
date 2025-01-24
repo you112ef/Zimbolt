@@ -27,8 +27,11 @@ const exportChatButtonFallback = (
 // Step 4: Define an error handler (optional)
 const handleExportChatButtonError = (error: Error, errorInfo: React.ErrorInfo) => {
   console.error('Error in ExportChatButton:', error, errorInfo);
-  // Optionally, report to an external service like Sentry
-  // Sentry.captureException(error, { extra: errorInfo });
+
+  /*
+   * Optionally, report to an external service like Sentry
+   * Sentry.captureException(error, { extra: errorInfo });
+   */
 };
 
 // Step 5: Wrap the component with the HOC

@@ -1,8 +1,8 @@
 // app/components/chat/BaseChat/ModelSettingsPanel.tsx
 import React from 'react';
 import type { ProviderInfo } from '~/types/model';
-import { ModelSelector } from '../ModelSelector';
-import { APIKeyManager } from '../APIKeyManager';
+import { ModelSelector } from '~/components/chat/ModelSelector';
+import { APIKeyManager } from '~/components/chat/APIKeyManager';
 
 interface ModelSettingsPanelProps {
   model?: string;

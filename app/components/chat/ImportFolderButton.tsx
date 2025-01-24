@@ -38,7 +38,7 @@ export const ImportFolderButton: React.FC<ImportFolderButtonProps> = ({ classNam
         maxFiles: MAX_FILES,
       });
       toast.error(
-        `This folder contains ${filteredFiles.length.toLocaleString()} files. This product is not yet optimized for very large projects. Please select a folder with fewer than ${MAX_FILES.toLocaleString()} files.`,
+        `This folder contains ${filteredFiles.length.toLocaleString()} files. This product is not yet optimized for very large projects. Please select a folder with fewer than ${MAX_FILES.toLocaleString()} files.`
       );
 
       return;
@@ -54,7 +54,7 @@ export const ImportFolderButton: React.FC<ImportFolderButtonProps> = ({ classNam
         filteredFiles.map(async (file) => ({
           file,
           isBinary: await isBinaryFile(file),
-        })),
+        }))
       );
 
       const textFiles = fileChecks.filter((f) => !f.isBinary).map((f) => f.file);

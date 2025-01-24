@@ -7,9 +7,11 @@ import { ImportFolderButton } from '~/components/chat/ImportFolderButton';
 import withErrorBoundary from '~/components/ui/withErrorBoundary'; // Import the HOC
 
 // Step 2: Define the original component separately
-const ImportButtonsComponent = (
-  importChat: ((description: string, messages: Message[]) => Promise<void>) | undefined,
-) => {
+interface ImportButtonsProps {
+  importChat?: (description: string, messages: Message[]) => Promise<void>;
+}
+
+const ImportButtonsComponent: React.FC<ImportButtonsProps> = ({ importChat }) => {
   return (
     <div className="flex flex-col items-center justify-center w-auto">
       <input
@@ -86,8 +88,11 @@ const importButtonsFallback = (
 // Step 4: Define an error handler (optional)
 const handleImportButtonsError = (error: Error, errorInfo: React.ErrorInfo) => {
   console.error('Error in ImportButtons:', error, errorInfo);
-  // Optionally, report to an external service like Sentry
-  // Sentry.captureException(error, { extra: errorInfo });
+
+  /*
+   * Optionally, report to an external service like Sentry
+   * Sentry.captureException(error, { extra: errorInfo });
+   */
 };
 
 // Step 5: Wrap the component with the HOC

@@ -58,7 +58,7 @@ export const Artifact = memo(({ messageId }: ArtifactProps) => {
   const actions = useStore(
     computed(artifact.runner.actions || {}, (actions) => {
       return Object.values(actions);
-    }),
+    })
   );
 
   const toggleActions = () => {
@@ -103,12 +103,8 @@ export const Artifact = memo(({ messageId }: ArtifactProps) => {
             </>
           )}
           <div className="px-5 p-3.5 w-full text-left">
-            <div className="w-full text-bolt-elements-textPrimary font-medium leading-5 text-sm">
-              {artifact.title}
-            </div>
-            <div className="w-full text-bolt-elements-textSecondary text-xs mt-0.5">
-              Click to open Workbench
-            </div>
+            <div className="w-full text-bolt-elements-textPrimary font-medium leading-5 text-sm">{artifact.title}</div>
+            <div className="w-full text-bolt-elements-textSecondary text-xs mt-0.5">Click to open Workbench</div>
           </div>
         </button>
         <div className="bg-bolt-elements-artifacts-borderColor w-[1px]" />
@@ -188,12 +184,7 @@ function openArtifactInWorkbench(filePath: string) {
 
 const ActionList = memo(({ actions }: ActionListProps) => {
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.15 }}
-    >
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
       <ul className="list-none space-y-2.5">
         {actions.map((action, index) => {
           const { status, type, content } = action;

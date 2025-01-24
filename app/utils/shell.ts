@@ -36,7 +36,7 @@ export async function newShellProcess(webcontainer: WebContainer, terminal: ITer
 
         terminal.write(data);
       },
-    }),
+    })
   );
 
   terminal.onData((data) => {
@@ -173,7 +173,7 @@ export class BoltShell {
 
           terminal.write(data);
         },
-      }),
+      })
     );
 
     terminal.onData((data) => {

@@ -58,6 +58,7 @@ declare module '@radix-ui/react-tooltip' {
   export const Portal: React.FC;
   export const Content: React.FC<{ side?: string; sideOffset?: number }>;
   export const Arrow: React.FC;
+
   // Add other exports as needed
 }
 
@@ -76,6 +77,7 @@ declare module 'react-toastify' {
     draggable?: boolean;
     pauseOnHover?: boolean;
     theme?: 'light' | 'dark' | 'colored';
+
     // Define other necessary props here
   }
 
@@ -92,12 +94,15 @@ declare module 'react-toastify' {
     function warning(message: string): void;
     function loading(message: string): number; // Assuming 'loading' returns a toast ID
     function dismiss(toastId?: number): void;
+
     // Add other toast methods as needed
   }
 
   export { toast };
 }
 
-// Add any other modules that TypeScript complains about
-// Example:
-// declare module 'some-unknown-module';
+/*
+ * Add any other modules that TypeScript complains about
+ * Example:
+ * declare module 'some-unknown-module';
+ */

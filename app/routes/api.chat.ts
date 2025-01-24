@@ -42,7 +42,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
   const cookieHeader = request.headers.get('Cookie');
   const apiKeys = JSON.parse(parseCookies(cookieHeader || '').apiKeys || '{}');
   const providerSettings: Record<string, IProviderSetting> = JSON.parse(
-    parseCookies(cookieHeader || '').providers || '{}',
+    parseCookies(cookieHeader || '').providers || '{}'
   );
 
   const stream = new SwitchableStream();
@@ -86,7 +86,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
                 const str = typeof chunk === 'string' ? chunk : JSON.stringify(chunk);
                 controller.enqueue(encoder.encode(str));
               },
-            }),
+            })
           );
           await stream.switchSource(usageStream);
           await new Promise((resolve) => setTimeout(resolve, 0));

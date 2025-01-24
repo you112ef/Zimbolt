@@ -79,5 +79,5 @@ export const PortDropdown = memo(
         )}
       </div>
     );
-  },
+  }
 );

@@ -1,7 +1,7 @@
 // app/components/ui/ErrorBoundary.tsx
 
-import React, { Component, ReactNode } from 'react';
-import type { ErrorInfo } from 'react';
+import React, { Component } from 'react';
+import type { ReactNode, ErrorInfo } from 'react';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -34,11 +34,13 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       this.props.onError(error, errorInfo);
     }
 
-    // Optionally, send error details to a monitoring service like Sentry
-    // Example:
-    // if (typeof Sentry !== 'undefined') {
-    //   Sentry.captureException(error, { extra: errorInfo });
-    // }
+    /*
+     * Optionally, send error details to a monitoring service like Sentry
+     * Example:
+     * if (typeof Sentry !== 'undefined') {
+     *   Sentry.captureException(error, { extra: errorInfo });
+     * }
+     */
   }
 
   render() {

@@ -162,9 +162,7 @@ const contextMenuVariants = {
 const fileBreadcrumbFallback = (
   <div className="error-fallback p-4 bg-red-100 text-red-700 rounded flex flex-col items-center justify-center min-h-screen">
     <h1 className="text-3xl font-bold text-red-600 mb-4">Something Went Wrong</h1>
-    <p className="text-lg text-red-500 mb-6">
-      We're sorry for the inconvenience. Please try refreshing the page.
-    </p>
+    <p className="text-lg text-red-500 mb-6">We're sorry for the inconvenience. Please try refreshing the page.</p>
     <button
       onClick={() => window.location.reload()}
       className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
@@ -179,8 +177,11 @@ const fileBreadcrumbFallback = (
  */
 const handleFileBreadcrumbError = (error: Error, errorInfo: React.ErrorInfo) => {
   console.error('Error in FileBreadcrumb:', error, errorInfo);
-  // Optionally, send error details to a monitoring service like Sentry
-  // Sentry.captureException(error, { extra: errorInfo });
+
+  /*
+   * Optionally, send error details to a monitoring service like Sentry
+   * Sentry.captureException(error, { extra: errorInfo });
+   */
 };
 
 /**

@@ -52,7 +52,7 @@ export async function setMessages(
   messages: Message[],
   urlId?: string,
   description?: string,
-  timestamp?: string,
+  timestamp?: string
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction('chats', 'readwrite');
@@ -203,7 +203,7 @@ export async function duplicateChat(db: IDBDatabase, id: string): Promise<string
 export async function createChatFromMessages(
   db: IDBDatabase,
   description: string,
-  messages: Message[],
+  messages: Message[]
 ): Promise<string> {
   const newId = await getNextId(db);
   const newUrlId = await getUrlId(db, newId); // Get a new urlId for the duplicated chat
@@ -213,7 +213,7 @@ export async function createChatFromMessages(
     newId,
     messages,
     newUrlId, // Use the new urlId
-    description,
+    description
   );
 
   return newUrlId; // Return the urlId instead of id for navigation

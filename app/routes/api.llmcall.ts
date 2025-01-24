@@ -62,7 +62,7 @@ async function llmCallAction({ context, request }: ActionFunctionArgs) {
   // Parse the cookie's value (returns an object or null if no cookie exists)
   const apiKeys = JSON.parse(parseCookies(cookieHeader || '').apiKeys || '{}');
   const providerSettings: Record<string, IProviderSetting> = JSON.parse(
-    parseCookies(cookieHeader || '').providers || '{}',
+    parseCookies(cookieHeader || '').providers || '{}'
   );
 
   if (streamOutput) {

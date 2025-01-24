@@ -83,7 +83,7 @@ export default function EventLogsTab() {
           (log) =>
             `[${log.level.toUpperCase()}] ${log.timestamp} - ${log.message}${
               log.details ? '\nDetails: ' + JSON.stringify(log.details, null, 2) : ''
-            }`,
+            }`
         )
         .join('\n\n');
 
@@ -166,7 +166,7 @@ export default function EventLogsTab() {
                   'bg-bolt-elements-button-primary-background',
                   'rounded-lg px-4 py-2 transition-colors duration-200',
                   'hover:bg-bolt-elements-button-primary-backgroundHover',
-                  'text-bolt-elements-button-primary-text',
+                  'text-bolt-elements-button-primary-text'
                 )}
               >
                 Export Logs
@@ -177,7 +177,7 @@ export default function EventLogsTab() {
                   'bg-bolt-elements-button-danger-background',
                   'rounded-lg px-4 py-2 transition-colors duration-200',
                   'hover:bg-bolt-elements-button-danger-backgroundHover',
-                  'text-bolt-elements-button-danger-text',
+                  'text-bolt-elements-button-danger-text'
                 )}
               >
                 Clear Logs
