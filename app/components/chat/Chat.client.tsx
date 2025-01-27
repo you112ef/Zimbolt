@@ -51,7 +51,9 @@ function ChatComponent() {
       {ready && (
         <ChatImpl
           description={title}
-          initialMessages={initialMessages.filter((msg): msg is Message & { role: NonNullable<Message['role']> } => msg.role !== undefined)}
+          initialMessages={initialMessages.filter(
+            (msg): msg is Message & { role: NonNullable<Message['role']> } => msg.role !== undefined
+          )}
           exportChat={exportChat}
           storeMessageHistory={storeMessageHistory}
           importChat={importChat}

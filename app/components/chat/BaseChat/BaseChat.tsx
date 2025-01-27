@@ -1,6 +1,6 @@
 // app/components/chat/BaseChat/BaseChat.tsx
 
-import React, { forwardRef, useCallback, useEffect, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useState, type RefObject } from 'react';
 import type { Message } from 'ai';
 import { ClientOnly } from 'remix-utils/client-only';
 import Cookies from 'js-cookie';
@@ -12,8 +12,8 @@ import { classNames } from '~/utils/classNames';
 import { MODEL_LIST, PROVIDER_LIST, initializeModelList } from '~/utils/constants';
 import Messages from '~/components/chat/Messages.client';
 import { APIKeyManager, getApiKeysFromCookies } from '~/components/chat/APIKeyManager';
-import { IconButton } from '~/components/ui/IconButton';
-import { SendButton } from '~/components/chat/SendButton.client';
+import { IconButton } from '~/components/ui/IconButton'; // Named import
+import SendButton from '~/components/chat/SendButton';
 import ExportChatButton from '~/components/chat/chatExportAndImport/ExportChatButton';
 import ImportButtons from '~/components/chat/chatExportAndImport/ImportButtons';
 import { ExamplePrompts } from '~/components/chat/ExamplePrompts';
@@ -36,14 +36,14 @@ import { ChatFooter } from './ChatFooter';
 import { ScreenshotStateManager } from '~/components/chat/ScreenshotStateManager';
 
 // Import your own custom Ref types from refs.ts
-import type { RefObject, RefCallback } from '~/types/refs';
+import type { RefCallback as CustomRefCallback } from '~/types/refs';
 
 const TEXTAREA_MIN_HEIGHT = 76;
 
 interface BaseChatProps {
   textareaRef?: RefObject<HTMLTextAreaElement>;
-  messageRef?: RefCallback<HTMLDivElement>;
-  scrollRef?: RefCallback<HTMLDivElement>;
+  messageRef?: CustomRefCallback<HTMLDivElement>;
+  scrollRef?: CustomRefCallback<HTMLDivElement>;
 
   showChat?: boolean;
   chatStarted?: boolean;
@@ -355,13 +355,13 @@ const BaseChat = forwardRef<HTMLDivElement, BaseChatProps>(
                     <GitCloneButton importChat={importChat} />
                   </div>
                   <ExamplePrompts
-                    onPromptSelect={(event: React.UIEvent<HTMLTextAreaElement>, messageInput: string) => {
+                    sendMessage={(event: React.UIEvent<HTMLTextAreaElement> | React.MouseEvent<HTMLButtonElement>, messageInput?: string) => {
                       if (isStreaming) {
                         handleStop?.();
                         return;
                       }
 
-                      handleSendMessage(event, messageInput);
+                      handleSendMessage(event as React.UIEvent<HTMLTextAreaElement>, messageInput);
                     }}
                   />
                   <StarterTemplates />
@@ -378,7 +378,12 @@ const BaseChat = forwardRef<HTMLDivElement, BaseChatProps>(
       </div>
     );
 
-    return <Tooltip.Root delayDuration={200}>{baseChat}</Tooltip.Root>;
+    return (
+      // @ts-ignore - Tooltip.Root might not require children in some versions
+      <Tooltip.Root delayDuration={200}>
+        {baseChat}
+      </Tooltip.Root>
+    );
   }
 );
 

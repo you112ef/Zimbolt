@@ -1,4 +1,4 @@
-// app/components/chat/SendButton.client.tsx
+// app/components/chat/SendButton.tsx
 
 'use client';
 

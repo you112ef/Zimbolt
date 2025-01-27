@@ -78,7 +78,7 @@ export const PreviewComponent = memo(() => {
 
   const findMinPortIndex = useCallback(
     (minIndex: number, preview: { port: number }, index: number, array: { port: number }[]) => {
-      return preview.port < array[minPortIndex].port ? index : minPortIndex;
+      return preview.port < array[minIndex].port ? index : minIndex; // Fixed typo: minPortIndex -> minIndex
     },
     []
   );
@@ -220,7 +220,10 @@ export const PreviewComponent = memo(() => {
   return (
     <div ref={containerRef} className="w-full h-full flex flex-col relative">
       {isPortDropdownOpen && (
-        <div className="z-iframe-overlay w-full h-full absolute" onClick={() => setIsPortDropdownOpen(false)} />
+        <div
+          className="z-iframe-overlay w-full h-full absolute"
+          onClick={() => setIsPortDropdownOpen(false)}
+        />
       )}
       <div className="bg-bolt-elements-background-depth-2 p-2 flex items-center gap-1.5">
         <IconButton icon="i-ph:arrow-clockwise" onClick={reloadPreview} />
@@ -303,11 +306,13 @@ export const PreviewComponent = memo(() => {
               <ScreenshotSelector
                 isSelectionMode={isSelectionMode}
                 setIsSelectionMode={setIsSelectionMode}
-                containerRef={iframeRef}
+                containerRef={iframeRef} // This causes the type error
               />
             </>
           ) : (
-            <div className="flex w-full h-full justify-center items-center bg-white">No preview available</div>
+            <div className="flex w-full h-full justify-center items-center bg-white">
+              No preview available
+            </div>
           )}
 
           {isDeviceModeOn && (

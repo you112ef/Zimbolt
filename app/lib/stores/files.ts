@@ -1,3 +1,5 @@
+// app/lib/stores/files.ts
+
 import type { PathWatcherEvent, WebContainer } from '@webcontainer/api';
 import { getEncoding } from 'istextorbinary';
 import { map, type MapStore } from 'nanostores';
@@ -13,44 +15,70 @@ const logger = createScopedLogger('FilesStore');
 
 const utf8TextDecoder = new TextDecoder('utf8', { fatal: true });
 
+/**
+ * Represents a file with its content and binary status.
+ */
 export interface File {
   type: 'file';
   content: string;
   isBinary: boolean;
 }
 
-export interface Folder {
-  type: 'folder';
+/**
+ * Represents a directory.
+ */
+export interface Directory {
+  type: 'directory';
 }
 
-type Dirent = File | Folder;
+/**
+ * Union type representing either a File or a Directory.
+ */
+export type Dirent = File | Directory;
 
-export type FileMap = Record<string, Dirent | undefined>;
+/**
+ * Mapping of file paths to their corresponding Dirent (File or Directory).
+ */
+export type FileMap = {
+  [filePath: string]: Dirent | undefined;
+};
 
+/**
+ * FilesStore manages the state of files and directories within the WebContainer environment.
+ * It handles file additions, deletions, modifications, and synchronizes with the WebContainer's filesystem.
+ */
 export class FilesStore {
   #webcontainer: Promise<WebContainer>;
 
   /**
-   * Tracks the number of files without folders.
+   * Tracks the number of files (excluding directories).
    */
   #size = 0;
 
   /**
-   * @note Keeps track all modified files with their original content since the last user message.
-   * Needs to be reset when the user sends another message and all changes have to be submitted
+   * Keeps track of all modified files with their original content since the last user message.
+   * Needs to be reset when the user sends another message, and all changes have to be submitted
    * for the model to be aware of the changes.
    */
   #modifiedFiles: Map<string, string> = import.meta.hot?.data.modifiedFiles ?? new Map();
 
   /**
-   * Map of files that matches the state of WebContainer.
+   * Map of files and directories that reflects the state of the WebContainer.
    */
   files: MapStore<FileMap> = import.meta.hot?.data.files ?? map({});
 
+  /**
+   * Retrieves the total number of files managed by the store.
+   */
   get filesCount() {
     return this.#size;
   }
 
+  /**
+   * Initializes the FilesStore with a WebContainer instance.
+   *
+   * @param webcontainerPromise - A promise that resolves to a WebContainer instance.
+   */
   constructor(webcontainerPromise: Promise<WebContainer>) {
     this.#webcontainer = webcontainerPromise;
 
@@ -62,7 +90,13 @@ export class FilesStore {
     this.#init();
   }
 
-  getFile(filePath: string) {
+  /**
+   * Retrieves a File Dirent by its file path.
+   *
+   * @param filePath - The path of the file to retrieve.
+   * @returns The File Dirent if found and is a file; otherwise, undefined.
+   */
+  getFile(filePath: string): File | undefined {
     const dirent = this.files.get()[filePath];
 
     if (dirent?.type !== 'file') {
@@ -72,14 +106,28 @@ export class FilesStore {
     return dirent;
   }
 
+  /**
+   * Computes the modifications made to the files since the last reset.
+   *
+   * @returns An object representing the modifications.
+   */
   getFileModifications() {
     return computeFileModifications(this.files.get(), this.#modifiedFiles);
   }
 
+  /**
+   * Resets the tracking of file modifications.
+   */
   resetFileModifications() {
     this.#modifiedFiles.clear();
   }
 
+  /**
+   * Saves the content of a file, updating both the WebContainer and the local store.
+   *
+   * @param filePath - The path of the file to save.
+   * @param content - The new content to write to the file.
+   */
   async saveFile(filePath: string, content: string) {
     const webcontainer = await this.#webcontainer;
 
@@ -102,10 +150,10 @@ export class FilesStore {
         this.#modifiedFiles.set(filePath, oldContent);
       }
 
-      // we immediately update the file and don't rely on the `change` event coming from the watcher
+      // Immediately update the file in the local store without waiting for the watcher event
       this.files.setKey(filePath, { type: 'file', content, isBinary: false });
 
-      logger.info('File updated');
+      logger.info(`File updated: ${filePath}`);
     } catch (error) {
       logger.error('Failed to update file content\n\n', error);
 
@@ -113,6 +161,9 @@ export class FilesStore {
     }
   }
 
+  /**
+   * Initializes the FilesStore by setting up path watchers in the WebContainer.
+   */
   async #init() {
     const webcontainer = await this.#webcontainer;
 
@@ -122,24 +173,30 @@ export class FilesStore {
     );
   }
 
+  /**
+   * Processes a buffer of path watcher events, updating the local file map accordingly.
+   *
+   * @param events - An array of path watcher events.
+   */
   #processEventBuffer(events: Array<[events: PathWatcherEvent[]]>) {
     const watchEvents = events.flat(2);
 
     for (const { type, path, buffer } of watchEvents) {
-      // remove any trailing slashes
+      // Remove any trailing slashes for consistency
       const sanitizedPath = path.replace(/\/+$/g, '');
 
       switch (type) {
         case 'add_dir': {
-          // we intentionally add a trailing slash so we can distinguish files from folders in the file tree
-          this.files.setKey(sanitizedPath, { type: 'folder' });
+          // Intentionally adding a trailing slash to distinguish directories
+          this.files.setKey(sanitizedPath, { type: 'directory' });
           break;
         }
         case 'remove_dir': {
           this.files.setKey(sanitizedPath, undefined);
 
-          for (const [direntPath] of Object.entries(this.files)) {
-            if (direntPath.startsWith(sanitizedPath)) {
+          // Recursively remove all nested files and directories within the removed directory
+          for (const direntPath of Object.keys(this.files.get())) {
+            if (direntPath.startsWith(`${sanitizedPath}/`)) {
               this.files.setKey(direntPath, undefined);
             }
           }
@@ -155,10 +212,9 @@ export class FilesStore {
           let content = '';
 
           /**
-           * @note This check is purely for the editor. The way we detect this is not
-           * bullet-proof and it's a best guess so there might be false-positives.
-           * The reason we do this is because we don't want to display binary files
-           * in the editor nor allow to edit them.
+           * @note This check is purely for the editor. The detection method is not
+           * bullet-proof and may result in false positives.
+           * The goal is to avoid displaying or editing binary files.
            */
           const isBinary = isBinaryFile(buffer);
 
@@ -176,14 +232,25 @@ export class FilesStore {
           break;
         }
         case 'update_directory': {
-          // we don't care about these events
+          // These events are not handled as directory metadata isn't tracked
+          break;
+        }
+        default: {
+          // Handle unexpected event types gracefully
+          logger.warn(`Unhandled event type: ${type} for path: ${path}`);
           break;
         }
       }
     }
   }
 
-  #decodeFileContent(buffer?: Uint8Array) {
+  /**
+   * Decodes the content of a file from a Uint8Array buffer to a UTF-8 string.
+   *
+   * @param buffer - The buffer containing the file's content.
+   * @returns The decoded string content of the file.
+   */
+  #decodeFileContent(buffer?: Uint8Array): string {
     if (!buffer || buffer.byteLength === 0) {
       return '';
     }
@@ -191,13 +258,19 @@ export class FilesStore {
     try {
       return utf8TextDecoder.decode(buffer);
     } catch (error) {
-      console.log(error);
+      logger.error('Failed to decode file content', error);
       return '';
     }
   }
 }
 
-function isBinaryFile(buffer: Uint8Array | undefined) {
+/**
+ * Determines whether a file is binary based on its buffer content.
+ *
+ * @param buffer - The buffer to analyze.
+ * @returns True if the file is binary; otherwise, false.
+ */
+function isBinaryFile(buffer: Uint8Array | undefined): boolean {
   if (buffer === undefined) {
     return false;
   }
@@ -206,10 +279,11 @@ function isBinaryFile(buffer: Uint8Array | undefined) {
 }
 
 /**
- * Converts a `Uint8Array` into a Node.js `Buffer` by copying the prototype.
- * The goal is to  avoid expensive copies. It does create a new typed array
- * but that's generally cheap as long as it uses the same underlying
- * array buffer.
+ * Converts a `Uint8Array` into a Node.js `Buffer` by referencing the same underlying ArrayBuffer.
+ * This avoids expensive copies and ensures efficient memory usage.
+ *
+ * @param view - The Uint8Array to convert.
+ * @returns A Buffer representing the same data as the input Uint8Array.
  */
 function convertToBuffer(view: Uint8Array): Buffer {
   return Buffer.from(view.buffer, view.byteOffset, view.byteLength);

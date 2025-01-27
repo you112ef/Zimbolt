@@ -1,3 +1,5 @@
+// app/root.tsx
+
 import React, { useEffect } from 'react';
 import { useStore } from '@nanostores/react';
 import type { LinksFunction } from '@remix-run/cloudflare';

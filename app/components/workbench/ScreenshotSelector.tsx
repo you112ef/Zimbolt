@@ -1,13 +1,14 @@
 // app/components/workbench/ScreenshotSelector.tsx
 
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import type { RefObject } from 'react';
 import { toast } from 'react-toastify';
 import withErrorBoundary from '~/components/ui/withErrorBoundary'; // Import the HOC
 
 interface ScreenshotSelectorProps {
   isSelectionMode: boolean;
   setIsSelectionMode: (mode: boolean) => void;
-  containerRef: React.RefObject<HTMLElement>;
+  containerRef: RefObject<HTMLElement | null>; // Updated to accept HTMLElement or null
 }
 
 /**
@@ -38,7 +39,7 @@ const ScreenshotSelectorComponent = memo(
       };
     }, []);
 
-    const initializeStream = async () => {
+    const initializeStream = useCallback(async (): Promise<MediaStream | null> => {
       if (!mediaStreamRef.current) {
         try {
           const stream = await navigator.mediaDevices.getDisplayMedia({
@@ -91,11 +92,12 @@ const ScreenshotSelectorComponent = memo(
           console.error('Failed to initialize stream:', error);
           setIsSelectionMode(false);
           toast.error('Failed to initialize screen capture');
+          return null;
         }
       }
 
       return mediaStreamRef.current;
-    };
+    }, [setIsSelectionMode]);
 
     const handleCopySelection = useCallback(async () => {
       if (!isSelectionMode || !selectionStart || !selectionEnd || !containerRef.current) {
@@ -108,7 +110,7 @@ const ScreenshotSelectorComponent = memo(
         const stream = await initializeStream();
 
         if (!stream || !videoRef.current) {
-          return;
+          throw new Error('Stream or video element is not available');
         }
 
         // Wait for video to be ready
@@ -220,7 +222,7 @@ const ScreenshotSelectorComponent = memo(
         setSelectionEnd(null);
         setIsSelectionMode(false); // Turn off selection mode after capture
       }
-    }, [isSelectionMode, selectionStart, selectionEnd, containerRef, setIsSelectionMode]);
+    }, [isSelectionMode, selectionStart, selectionEnd, containerRef, setIsSelectionMode, initializeStream]);
 
     const handleSelectionStart = useCallback(
       (e: React.MouseEvent) => {

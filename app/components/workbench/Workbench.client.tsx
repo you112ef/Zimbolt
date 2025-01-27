@@ -1,6 +1,6 @@
 // app/components/workbench/Workbench.client.tsx
 
-import React from 'react';
+import React, { type ReactElement } from 'react'; // Added React import
 import { useStore } from '@nanostores/react';
 import { motion, type HTMLMotionProps, type Variants } from 'framer-motion';
 import { computed } from 'nanostores';
@@ -17,11 +17,11 @@ import { workbenchStore, type WorkbenchViewType } from '~/lib/stores/workbench';
 import { classNames } from '~/utils/classNames';
 import { cubicEasingFn } from '~/utils/easings';
 import { renderLogger } from '~/utils/logger';
-import { EditorPanel } from './EditorPanel';
-import { Preview } from './Preview';
+import EditorPanel from './EditorPanel'; // Changed to default import
+import Preview from './Preview'; // Changed to default import
 import useViewport from '~/lib/hooks';
 import Cookies from 'js-cookie';
-import withErrorBoundary from '~/components/ui/withErrorBoundary'; // Import the HOC
+import withErrorBoundary from '~/components/ui/withErrorBoundary';
 
 interface WorkspaceProps {
   chatStarted?: boolean;
@@ -253,7 +253,7 @@ const WorkbenchComponent = memo(({ chatStarted, isStreaming }: WorkspaceProps) =
 
 // A small helper component for the view transitions
 interface ViewProps extends HTMLMotionProps<'div'> {
-  children: JSX.Element;
+  children: ReactElement;
 }
 
 const View = memo(({ children, ...props }: ViewProps) => {

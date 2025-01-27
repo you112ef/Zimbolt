@@ -1,28 +1,33 @@
 // app/components/workbench/EditorPanel.tsx
 
-import React from 'react';
+import React, { memo, useMemo } from 'react';
 import { useStore } from '@nanostores/react';
-import { memo, useMemo } from 'react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
-import {
-  CodeMirrorEditor,
-  type EditorDocument,
-  type EditorSettings,
-  type OnChangeCallback as OnEditorChange,
-  type OnSaveCallback as OnEditorSave,
-  type OnScrollCallback as OnEditorScroll,
+import CodeMirrorEditor from '~/components/editor/codemirror/CodeMirrorEditor';
+import type {
+  EditorDocument,
+  EditorSettings,
+  OnChangeCallback as OnEditorChange,
+  OnSaveCallback as OnEditorSave,
+  OnScrollCallback as OnEditorScroll,
 } from '~/components/editor/codemirror/CodeMirrorEditor';
 import { PanelHeader } from '~/components/ui/PanelHeader';
 import { PanelHeaderButton } from '~/components/ui/PanelHeaderButton';
 import { FileBreadcrumb } from './FileBreadcrumb';
-import { FileTree } from './FileTree';
+import FileTree from './FileTree';
+import type { FileMap } from '~/lib/stores/files';
 import { TerminalTabs } from './terminal/TerminalTabs';
 import { themeStore } from '~/lib/stores/theme';
 import { WORK_DIR } from '~/utils/constants';
 import { renderLogger } from '~/utils/logger';
 import { classNames } from '~/utils/classNames';
-import withErrorBoundary from '~/components/ui/withErrorBoundary'; // Import the HOC
+import withErrorBoundary from '~/components/ui/withErrorBoundary';
+import { workbenchStore } from '~/lib/stores/workbench';
+import { isMobile } from '~/utils/mobile'; // Added missing import
 
+/**
+ * Props for the EditorPanel component.
+ */
 interface EditorPanelProps {
   files?: FileMap;
   unsavedFiles?: Set<string>;
@@ -36,11 +41,15 @@ interface EditorPanelProps {
   onFileReset?: () => void;
 }
 
+const DEFAULT_TERMINAL_SIZE = 30;
 const DEFAULT_EDITOR_SIZE = 100 - DEFAULT_TERMINAL_SIZE;
 
 const editorSettings: EditorSettings = { tabSize: 2 };
 
-// Step 2: Define the original component separately
+/**
+ * EditorPanelComponent renders the main editor interface, including the file tree,
+ * editor area, and terminal tabs with resizable panels.
+ */
 const EditorPanelComponent = memo(
   ({
     files,
@@ -63,7 +72,6 @@ const EditorPanelComponent = memo(
       if (!editorDocument) {
         return undefined;
       }
-
       return editorDocument.filePath.split('/');
     }, [editorDocument]);
 
@@ -97,7 +105,11 @@ const EditorPanelComponent = memo(
               <PanelHeader className="overflow-x-auto">
                 {activeFileSegments?.length && (
                   <div className="flex items-center flex-1 text-sm">
-                    <FileBreadcrumb pathSegments={activeFileSegments} files={files} onFileSelect={onFileSelect} />
+                    <FileBreadcrumb
+                      pathSegments={activeFileSegments}
+                      files={files}
+                      onFileSelect={onFileSelect}
+                    />
                     {activeFileUnsaved && (
                       <div className="flex gap-1 ml-auto -mr-1.5">
                         <PanelHeaderButton onClick={onFileSave}>
@@ -119,7 +131,7 @@ const EditorPanelComponent = memo(
                   editable={!isStreaming && editorDocument !== undefined}
                   settings={editorSettings}
                   doc={editorDocument}
-                  autoFocusOnDocumentChange={!isMobile()}
+                  autoFocusOnDocumentChange={!isMobile()} /* Now using imported function */
                   onScroll={onEditorScroll}
                   onChange={onEditorChange}
                   onSave={onFileSave}
@@ -135,14 +147,21 @@ const EditorPanelComponent = memo(
   }
 );
 
-// Step 3: Create a fallback UI specific to this component
+/**
+ * Fallback UI displayed when the EditorPanel component fails to render.
+ */
 const editorPanelFallback = (
   <div className="error-fallback p-4 bg-red-100 text-red-700 rounded">
     <p>Editor Panel failed to load.</p>
   </div>
 );
 
-// Step 4: Define an error handler (optional)
+/**
+ * Handles errors that occur within the EditorPanel component.
+ *
+ * @param error - The error that was thrown.
+ * @param errorInfo - Additional information about the error.
+ */
 const handleEditorPanelError = (error: Error, errorInfo: React.ErrorInfo) => {
   console.error('Error in EditorPanel:', error, errorInfo);
 
@@ -152,11 +171,12 @@ const handleEditorPanelError = (error: Error, errorInfo: React.ErrorInfo) => {
    */
 };
 
-// Step 5: Wrap the component with the HOC
+/**
+ * Wraps the EditorPanelComponent with an error boundary to catch and handle rendering errors.
+ */
 const EditorPanel = withErrorBoundary(EditorPanelComponent, {
   fallback: editorPanelFallback,
   onError: handleEditorPanelError,
 });
 
-// Step 6: Export the wrapped component
 export default EditorPanel;

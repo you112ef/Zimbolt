@@ -1,4 +1,12 @@
-export function isMobile() {
-  // we use sm: as the breakpoint for mobile. It's currently set to 640px
-  return globalThis.innerWidth < 640;
-}
+// app/utils/device.ts
+
+export const isMobile = () => {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  return (
+    window.matchMedia('(max-width: 768px)').matches ||
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+  );
+};

@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { IconButton } from '~/components/ui/IconButton'; // Named export
-import { SendButton } from '~/components/chat/SendButton.client'; // Named export
+import SendButton from '../SendButton'; // Default import
 import classNames from 'classnames';
 import { toast } from 'react-toastify';
 import { Sparkle, CaretDown, CaretRight, Spinner, ArrowRight } from 'phosphor-react'; // Import necessary icons

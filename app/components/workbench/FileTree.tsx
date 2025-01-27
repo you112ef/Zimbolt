@@ -1,18 +1,20 @@
 // app/components/workbench/FileTree.tsx
 
-import React from 'react';
-import { memo, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { FileTree as OriginalFileTree } from '~/components/workbench/FileTree'; // Assuming the original FileTree is exported as a named export
+import React, { memo, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { classNames } from '~/utils/classNames';
 import { createScopedLogger, renderLogger } from '~/utils/logger';
 import * as ContextMenu from '@radix-ui/react-context-menu';
-import withErrorBoundary from '~/components/ui/withErrorBoundary'; // Import the HOC
+import withErrorBoundary from '~/components/ui/withErrorBoundary';
+import type { FileMap } from '~/lib/stores/files';
 
 const logger = createScopedLogger('FileTree');
 
 const NODE_PADDING_LEFT = 8;
 const DEFAULT_HIDDEN_FILES = [/\/node_modules\//, /\/\.next/, /\/\.astro/];
 
+/**
+ * Props for the FileTree component.
+ */
 interface Props {
   files?: FileMap;
   selectedFile?: string;
@@ -26,13 +28,45 @@ interface Props {
   className?: string;
 }
 
-// Step 2: Define the original component separately
+/**
+ * Base interface for nodes in the file tree.
+ */
+interface BaseNode {
+  id: number;
+  depth: number;
+  name: string;
+  fullPath: string;
+}
+
+/**
+ * Represents a file node.
+ */
+interface FileNode extends BaseNode {
+  kind: 'file';
+}
+
+/**
+ * Represents a folder node.
+ */
+interface FolderNode extends BaseNode {
+  kind: 'folder';
+}
+
+/**
+ * Union type for nodes in the file tree.
+ */
+type Node = FileNode | FolderNode;
+
+/**
+ * FileTreeComponent renders a hierarchical file tree with support for folder collapsing,
+ * file selection, and context menu actions.
+ */
 const FileTreeComponent = memo(
   ({
     files = {},
     onFileSelect,
     selectedFile,
-    rootFolder,
+    rootFolder = '/',
     hideRoot = false,
     collapsed = false,
     allowFolderSelection = false,
@@ -42,13 +76,16 @@ const FileTreeComponent = memo(
   }: Props) => {
     renderLogger.trace('FileTree');
 
-    const computedHiddenFiles = useMemo(() => [...DEFAULT_HIDDEN_FILES, ...(hiddenFiles ?? [])], [hiddenFiles]);
+    const computedHiddenFiles = useMemo(
+      () => [...DEFAULT_HIDDEN_FILES, ...(hiddenFiles ?? [])],
+      [hiddenFiles]
+    );
 
     const fileList = useMemo(() => {
       return buildFileList(files, rootFolder, hideRoot, computedHiddenFiles);
     }, [files, rootFolder, hideRoot, computedHiddenFiles]);
 
-    const [collapsedFolders, setCollapsedFolders] = useState(() => {
+    const [collapsedFolders, setCollapsedFolders] = useState<Set<string>>(() => {
       return collapsed
         ? new Set(fileList.filter((item) => item.kind === 'folder').map((item) => item.fullPath))
         : new Set<string>();
@@ -56,7 +93,9 @@ const FileTreeComponent = memo(
 
     useEffect(() => {
       if (collapsed) {
-        setCollapsedFolders(new Set(fileList.filter((item) => item.kind === 'folder').map((item) => item.fullPath)));
+        setCollapsedFolders(
+          new Set(fileList.filter((item) => item.kind === 'folder').map((item) => item.fullPath))
+        );
         return;
       }
 
@@ -74,24 +113,23 @@ const FileTreeComponent = memo(
     }, [fileList, collapsed]);
 
     const filteredFileList = useMemo(() => {
-      const list = [];
-
+      const list: Node[] = [];
       let lastDepth = Number.MAX_SAFE_INTEGER;
 
       for (const fileOrFolder of fileList) {
         const depth = fileOrFolder.depth;
 
-        // if the depth is equal we reached the end of the collaped group
+        // If the depth is equal, we reached the end of the collapsed group
         if (lastDepth === depth) {
           lastDepth = Number.MAX_SAFE_INTEGER;
         }
 
-        // ignore collapsed folders
+        // Ignore collapsed folders
         if (collapsedFolders.has(fileOrFolder.fullPath)) {
           lastDepth = Math.min(lastDepth, depth);
         }
 
-        // ignore files and folders below the last collapsed folder
+        // Ignore files and folders below the last collapsed folder
         if (lastDepth < depth) {
           continue;
         }
@@ -126,7 +164,9 @@ const FileTreeComponent = memo(
 
     const onCopyRelativePath = (fileOrFolder: FileNode | FolderNode) => {
       try {
-        navigator.clipboard.writeText(fileOrFolder.fullPath.substring((rootFolder || '').length));
+        navigator.clipboard.writeText(
+          fileOrFolder.fullPath.substring((rootFolder || '/').length)
+        );
       } catch (error) {
         logger.error(error);
       }
@@ -175,7 +215,7 @@ const FileTreeComponent = memo(
               );
             }
             default: {
-              return undefined;
+              return null;
             }
           }
         })}
@@ -184,7 +224,9 @@ const FileTreeComponent = memo(
   }
 );
 
-// Helper components and functions remain unchanged
+/**
+ * Props for the Folder component.
+ */
 interface FolderProps {
   folder: FolderNode;
   collapsed: boolean;
@@ -194,12 +236,18 @@ interface FolderProps {
   onClick: () => void;
 }
 
+/**
+ * Props for the FolderContextMenu component.
+ */
 interface FolderContextMenuProps {
   onCopyPath?: () => void;
   onCopyRelativePath?: () => void;
   children: ReactNode;
 }
 
+/**
+ * ContextMenuItem renders an individual item within a context menu.
+ */
 function ContextMenuItem({ onSelect, children }: { onSelect?: () => void; children: ReactNode }) {
   return (
     <ContextMenu.Item
@@ -212,6 +260,9 @@ function ContextMenuItem({ onSelect, children }: { onSelect?: () => void; childr
   );
 }
 
+/**
+ * FileContextMenu provides a context menu for file and folder nodes.
+ */
 function FileContextMenu({ onCopyPath, onCopyRelativePath, children }: FolderContextMenuProps) {
   return (
     <ContextMenu.Root>
@@ -231,6 +282,9 @@ function FileContextMenu({ onCopyPath, onCopyRelativePath, children }: FolderCon
   );
 }
 
+/**
+ * Folder component represents a folder node within the file tree.
+ */
 function Folder({ folder, collapsed, selected = false, onCopyPath, onCopyRelativePath, onClick }: FolderProps) {
   return (
     <FileContextMenu onCopyPath={onCopyPath} onCopyRelativePath={onCopyRelativePath}>
@@ -253,6 +307,9 @@ function Folder({ folder, collapsed, selected = false, onCopyPath, onCopyRelativ
   );
 }
 
+/**
+ * Props for the File component.
+ */
 interface FileProps {
   file: FileNode;
   selected: boolean;
@@ -262,6 +319,9 @@ interface FileProps {
   onClick: () => void;
 }
 
+/**
+ * File component represents a file node within the file tree.
+ */
 function File({
   file: { depth, name },
   onClick,
@@ -297,6 +357,9 @@ function File({
   );
 }
 
+/**
+ * Props for the NodeButton component.
+ */
 interface ButtonProps {
   depth: number;
   iconClasses: string;
@@ -305,6 +368,9 @@ interface ButtonProps {
   onClick?: () => void;
 }
 
+/**
+ * NodeButton renders a button representing a file or folder node with appropriate indentation and icons.
+ */
 function NodeButton({ depth, iconClasses, onClick, className, children }: ButtonProps) {
   return (
     <button
@@ -321,23 +387,15 @@ function NodeButton({ depth, iconClasses, onClick, className, children }: Button
   );
 }
 
-type Node = FileNode | FolderNode;
-
-interface BaseNode {
-  id: number;
-  depth: number;
-  name: string;
-  fullPath: string;
-}
-
-interface FileNode extends BaseNode {
-  kind: 'file';
-}
-
-interface FolderNode extends BaseNode {
-  kind: 'folder';
-}
-
+/**
+ * Builds a flat list of nodes from the provided FileMap.
+ *
+ * @param files - The mapping of file paths to directory entries.
+ * @param rootFolder - The root folder path.
+ * @param hideRoot - Whether to hide the root folder.
+ * @param hiddenFiles - Array of patterns to hide specific files or folders.
+ * @returns A sorted list of nodes.
+ */
 function buildFileList(
   files: FileMap,
   rootFolder = '/',
@@ -365,7 +423,6 @@ function buildFileList(
     }
 
     let currentPath = '';
-
     let i = 0;
     let depth = 0;
 
@@ -406,7 +463,15 @@ function buildFileList(
   return sortFileList(rootFolder, fileList, hideRoot);
 }
 
-function isHiddenFile(filePath: string, fileName: string, hiddenFiles: Array<string | RegExp>) {
+/**
+ * Determines whether a file should be hidden based on provided patterns.
+ *
+ * @param filePath - The full path of the file.
+ * @param fileName - The name of the file.
+ * @param hiddenFiles - Array of patterns to hide specific files or folders.
+ * @returns True if the file should be hidden; otherwise, false.
+ */
+function isHiddenFile(filePath: string, fileName: string, hiddenFiles: Array<string | RegExp>): boolean {
   return hiddenFiles.some((pathOrRegex) => {
     if (typeof pathOrRegex === 'string') {
       return fileName === pathOrRegex;
@@ -422,11 +487,9 @@ function isHiddenFile(filePath: string, fileName: string, hiddenFiles: Array<str
  * This function organizes the nodes into a hierarchical structure based on their paths,
  * with folders appearing before files and all items sorted alphabetically within their level.
  *
- * @note This function mutates the given `nodeList` array for performance reasons.
- *
  * @param rootFolder - The path of the root folder to start the sorting from.
  * @param nodeList - The list of nodes to be sorted.
- *
+ * @param hideRoot - Whether to hide the root folder in the list.
  * @returns A new array of nodes sorted in depth-first order.
  */
 function sortFileList(rootFolder: string, nodeList: Node[], hideRoot: boolean): Node[] {
@@ -435,15 +498,15 @@ function sortFileList(rootFolder: string, nodeList: Node[], hideRoot: boolean): 
   const nodeMap = new Map<string, Node>();
   const childrenMap = new Map<string, Node[]>();
 
-  // pre-sort nodes by name and type
+  // Pre-sort nodes by name and type
   nodeList.sort((a, b) => compareNodes(a, b));
 
   for (const node of nodeList) {
     nodeMap.set(node.fullPath, node);
 
-    const parentPath = node.fullPath.slice(0, node.fullPath.lastIndexOf('/'));
+    const parentPath = node.fullPath.slice(0, node.fullPath.lastIndexOf('/')) || '/';
 
-    if (parentPath !== rootFolder.slice(0, rootFolder.lastIndexOf('/'))) {
+    if (parentPath !== rootFolder.slice(0, rootFolder.lastIndexOf('/')) || rootFolder === '/') {
       if (!childrenMap.has(parentPath)) {
         childrenMap.set(parentPath, []);
       }
@@ -475,7 +538,7 @@ function sortFileList(rootFolder: string, nodeList: Node[], hideRoot: boolean): 
   };
 
   if (hideRoot) {
-    // if root is hidden, start traversal from its immediate children
+    // If root is hidden, start traversal from its immediate children
     const rootChildren = childrenMap.get(rootFolder) || [];
 
     for (const child of rootChildren) {
@@ -488,6 +551,13 @@ function sortFileList(rootFolder: string, nodeList: Node[], hideRoot: boolean): 
   return sortedList;
 }
 
+/**
+ * Compares two nodes for sorting purposes.
+ *
+ * @param a - The first node.
+ * @param b - The second node.
+ * @returns A negative number if 'a' should come before 'b', positive if after, or zero if equal.
+ */
 function compareNodes(a: Node, b: Node): number {
   if (a.kind !== b.kind) {
     return a.kind === 'folder' ? -1 : 1;
@@ -496,14 +566,21 @@ function compareNodes(a: Node, b: Node): number {
   return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
 }
 
-// Step 3: Create a fallback UI specific to this component
+/**
+ * Fallback UI displayed when the FileTree component fails to render.
+ */
 const fileTreeFallback = (
   <div className="error-fallback p-4 bg-red-100 text-red-700 rounded">
     <p>File Tree failed to load.</p>
   </div>
 );
 
-// Step 4: Define an error handler (optional)
+/**
+ * Handles errors that occur within the FileTree component.
+ *
+ * @param error - The error that was thrown.
+ * @param errorInfo - Additional information about the error.
+ */
 const handleFileTreeError = (error: Error, errorInfo: React.ErrorInfo) => {
   console.error('Error in FileTree:', error, errorInfo);
 
@@ -513,11 +590,12 @@ const handleFileTreeError = (error: Error, errorInfo: React.ErrorInfo) => {
    */
 };
 
-// Step 5: Wrap the component with the HOC
+/**
+ * Wraps the FileTreeComponent with an error boundary to catch and handle rendering errors.
+ */
 const FileTree = withErrorBoundary(FileTreeComponent, {
   fallback: fileTreeFallback,
   onError: handleFileTreeError,
 });
 
-// Step 6: Export the wrapped component
 export default FileTree;

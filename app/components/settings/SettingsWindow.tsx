@@ -14,7 +14,7 @@ import DebugTab from './debug/DebugTab';
 import EventLogsTab from './event-logs/EventLogsTab';
 import ConnectionsTab from './connections/ConnectionsTab';
 import DataTab from './data/DataTab';
-import withErrorBoundary from '~/components/ui/withErrorBoundary'; // Import the HOC
+import withErrorBoundary from '~/components/ui/withErrorBoundary';
 
 interface SettingsProps {
   open: boolean;
@@ -23,7 +23,6 @@ interface SettingsProps {
 
 type TabType = 'data' | 'providers' | 'features' | 'debug' | 'event-logs' | 'connection';
 
-// Step 2: Rename the original component
 const SettingsWindowComponent = ({ open, onClose }: SettingsProps) => {
   const { debug, eventLogs } = useSettings();
   const [activeTab, setActiveTab] = useState<TabType>('data');
@@ -34,24 +33,20 @@ const SettingsWindowComponent = ({ open, onClose }: SettingsProps) => {
     { id: 'connection', label: 'Connection', icon: 'i-ph:link', component: <ConnectionsTab /> },
     { id: 'features', label: 'Features', icon: 'i-ph:star', component: <FeaturesTab /> },
     ...(debug
-      ? [
-          {
-            id: 'debug' as TabType,
-            label: 'Debug Tab',
-            icon: 'i-ph:bug',
-            component: <DebugTab />,
-          },
-        ]
+      ? [{
+          id: 'debug' as TabType,
+          label: 'Debug Tab',
+          icon: 'i-ph:bug',
+          component: <DebugTab />,
+        }]
       : []),
     ...(eventLogs
-      ? [
-          {
-            id: 'event-logs' as TabType,
-            label: 'Event Logs',
-            icon: 'i-ph:list-bullets',
-            component: <EventLogsTab />,
-          },
-        ]
+      ? [{
+          id: 'event-logs' as TabType,
+          label: 'Event Logs',
+          icon: 'i-ph:list-bullets',
+          component: <EventLogsTab />,
+        }]
       : []),
   ];
 
@@ -76,12 +71,10 @@ const SettingsWindowComponent = ({ open, onClose }: SettingsProps) => {
             variants={dialogVariants}
           >
             <div className="flex h-full">
-              <div
-                className={classNames(
-                  'w-48 border-r border-bolt-elements-borderColor bg-bolt-elements-background-depth-1 p-4 flex flex-col justify-between',
-                  styles['settings-tabs']
-                )}
-              >
+              <div className={classNames(
+                'w-48 border-r border-bolt-elements-borderColor bg-bolt-elements-background-depth-1 p-4 flex flex-col justify-between',
+                styles['settings-tabs']
+              )}>
                 <DialogTitle className="flex-shrink-0 text-lg font-semibold text-bolt-elements-textPrimary mb-2">
                   Settings
                 </DialogTitle>
@@ -118,7 +111,9 @@ const SettingsWindowComponent = ({ open, onClose }: SettingsProps) => {
               </div>
 
               <div className="flex-1 flex flex-col p-8 pt-10 bg-bolt-elements-background-depth-2">
-                <div className="flex-1 overflow-y-auto">{tabs.find((tab) => tab.id === activeTab)?.component}</div>
+                <div className="flex-1 overflow-y-auto">
+                  {tabs.find((tab) => tab.id === activeTab)?.component}
+                </div>
               </div>
             </div>
             <RadixDialog.Close asChild onClick={onClose}>
@@ -131,7 +126,6 @@ const SettingsWindowComponent = ({ open, onClose }: SettingsProps) => {
   );
 };
 
-// Step 3: Create a fallback UI specific to this component
 const settingsWindowFallback = (
   <div className="error-fallback p-4 bg-red-100 text-red-700 rounded flex flex-col items-center justify-center min-h-screen">
     <h1 className="text-3xl font-bold text-red-600 mb-4">Something Went Wrong</h1>
@@ -145,21 +139,13 @@ const settingsWindowFallback = (
   </div>
 );
 
-// Step 4: Define an error handler (optional)
 const handleSettingsWindowError = (error: Error, errorInfo: React.ErrorInfo) => {
   console.error('Error in SettingsWindow:', error, errorInfo);
-
-  /*
-   * Optionally, send error details to a monitoring service like Sentry
-   * Sentry.captureException(error, { extra: errorInfo });
-   */
+  // Add error reporting logic here if needed
 };
 
-// Step 5: Wrap the component with the HOC
-const SettingsWindow = withErrorBoundary(SettingsWindowComponent, {
+// Named export instead of default export
+export const SettingsWindow = withErrorBoundary(SettingsWindowComponent, {
   fallback: settingsWindowFallback,
   onError: handleSettingsWindowError,
 });
-
-// Step 6: Export the wrapped component
-export default SettingsWindow;
