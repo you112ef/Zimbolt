@@ -1,13 +1,13 @@
 // app/components/chat/BaseChat/BaseChat.tsx
 
 import React, { forwardRef, useCallback, useEffect, useState, type RefObject } from 'react';
-import type { Message } from 'ai';
+import type { UnifiedMessage } from '~/types/unifiedmessage'; // Changed to lowercase
 import { ClientOnly } from 'remix-utils/client-only';
 import Cookies from 'js-cookie';
 import * as Tooltip from '@radix-ui/react-tooltip';
 
 import Menu from '~/components/sidebar/Menu.client';
-import Workbench from '~/components/workbench/Workbench.client';
+import Workbench from '~/components/workbench/Workbench.client'; // Correct import path
 import { classNames } from '~/utils/classNames';
 import { MODEL_LIST, PROVIDER_LIST, initializeModelList } from '~/utils/constants';
 import Messages from '~/components/chat/Messages.client';
@@ -59,13 +59,13 @@ interface BaseChatProps {
   enhancePrompt?: () => void;
   sendMessage?: (event: React.UIEvent<HTMLTextAreaElement>, messageInput?: string) => void;
   handleStop?: () => void;
-  importChat?: (description: string, messages: Message[]) => Promise<void>;
+  importChat?: (description: string, messages: UnifiedMessage[]) => Promise<void>; // Use UnifiedMessage
   exportChat?: () => void;
   uploadedFiles?: File[];
   setUploadedFiles?: (files: File[]) => void;
   imageDataList?: string[];
   setImageDataList?: (dataList: string[]) => void;
-  messages?: Message[];
+  messages?: UnifiedMessage[]; // Use UnifiedMessage
   actionAlert?: ActionAlert;
   clearAlert?: () => void;
 }
@@ -96,7 +96,7 @@ const BaseChat = forwardRef<HTMLDivElement, BaseChatProps>(
       setUploadedFiles,
       imageDataList = [],
       setImageDataList,
-      messages,
+      messages = [],
       actionAlert,
       clearAlert,
     }: BaseChatProps,
@@ -290,7 +290,7 @@ const BaseChat = forwardRef<HTMLDivElement, BaseChatProps>(
                     onApiKeysChange={onApiKeysChange}
                     isModelLoading={isModelLoading}
                   />
-                )}
+                }
 
                 {/* File Preview */}
                 <FilePreview

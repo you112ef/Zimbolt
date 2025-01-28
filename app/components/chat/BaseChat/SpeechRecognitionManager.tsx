@@ -11,9 +11,9 @@ interface SpeechRecognitionManagerProps {
 
 export function SpeechRecognitionManager({
   isStreaming,
-  _handleStop,
+  handleStop,
   handleInputChange,
-  _sendMessage,
+  sendMessage,
 }: SpeechRecognitionManagerProps) {
   const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
   const [isListening, setIsListening] = useState(false);

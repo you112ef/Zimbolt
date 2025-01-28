@@ -3,8 +3,11 @@
     "lib": ["DOM", "DOM.Iterable", "ESNext", "ESNext.AsyncIterable"],
     "isolatedModules": true,
     "esModuleInterop": true,
+    
+    // Use the React 18+ JSX transform:
     "jsx": "react-jsx",
-    "jsxImportSource": "react",
+    // Remove "jsxImportSource": "react"
+    
     "module": "ESNext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
@@ -18,9 +21,13 @@
     "noImplicitThis": true,
     "alwaysStrict": true,
     "allowJs": true,
+    
+    // Important to avoid library type conflicts:
     "skipLibCheck": true,
+    
     "verbatimModuleSyntax": true,
     "forceConsistentCasingInFileNames": true,
+    
     "baseUrl": ".",
     "paths": {
       "~/*": ["./app/*"]
@@ -29,6 +36,12 @@
     "typeRoots": ["./node_modules/@types", "./app/types"],
     "types": ["node", "react", "react-dom"]
   },
-  "include": ["**/*.ts", "**/*.tsx", "app/**/*.ts", "app/**/*.tsx", "app/types/**/*.d.ts"],
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "app/**/*.ts",
+    "app/**/*.tsx",
+    "app/types/**/*.{ts,d.ts}" // Updated to include both .ts and .d.ts files
+  ],
   "exclude": ["node_modules", "dist", "**/*.js"]
 }
